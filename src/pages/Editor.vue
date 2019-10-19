@@ -1,11 +1,12 @@
 <template>
     <div id="Editor">
-        <div class="w3-teal">
+        <div class="w3-teal w3-card-2" style="position: fixed; top: 0; left: 0;width: 100%">
             <router-link to="/" class="w3-btn w3-hover-none"><i class="fas fa-chevron-left"></i></router-link>
             <input id="title" class="w3-teal w3-border-0" v-model="title" style="width: auto; padding-left: 8px">
+            <button @click="saveInLocalStorage()" class="w3-btn w3-teal w3-hover-none">Speichern</button>
         </div>
 
-        <div style="padding: 0 24px">
+        <div class="" style="margin: 30px 24px 120px; height: 100%">
             <div>
                 <input class="w3-input w3-tiny w3-text-gray" style="border: 0" v-model="date">
             </div>
@@ -14,20 +15,20 @@
                 <div v-for="(val, i) in notes" class="w3-row">
                     <div class="val-link w3-col w3-right" style="width:50px"
                          v-if="val[0] === '@'">
-                        <a :href="getLinkToWOL(val)"
+                        <a :href="getLinkToWOL(val)" target="_blank"
                            class="w3-btn w3-hover-none">
                             <i class="fas fa-globe"></i>
                         </a>
                     </div>
 
-                    <div class="val-content w3-rest w3-btn w3-hover-none"
+                    <div class="val-content w3-rest w3-hover-none"
                          @click="edit(i)">
                         {{getValue(val)}}
                     </div>
                 </div>
             </div>
 
-            <div style="position:absolute; bottom: 0; left:0; padding: 8px; width: 100%">
+            <div class="w3-teal" style="position:fixed; bottom: 0; left:0; padding: 8px; width: 100%">
                 <div class="w3-row">
                     <div class="w3-col w3-right w3-center" style="width:50px; padding: 0 8px 0 4px">
                         <button @click="textareaToNotes()"
@@ -43,14 +44,17 @@
                         </button>
                     </div>
                     <div class="w3-rest w3-container">
-                    <textarea @keyup.ctrl.enter="textareaToNotes()"
-                              @keyup.esc.exact="abortEdit()" class="w3-input"
-                              v-model="form.current.text"></textarea>
+                    <textarea v-model="form.current.text"
+                              @keyup.ctrl.enter="textareaToNotes()"
+                              @keyup.esc.exact="abortEdit()"
+                              class="w3-input w3-round-large"
+                              style="resize: none"></textarea>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 </template>
 
 <script>
@@ -77,6 +81,10 @@
             }
 
             let id = parseInt(this.$route.params.id);
+
+            if (jsonDB[id] === undefined)
+                return this.$router.push('/');
+
             this.title = (jsonDB[id].title !== undefined) ? jsonDB[id].title : "";
             this.date = (jsonDB[id].date !== undefined) ? jsonDB[id].date : "";
             this.notes = (jsonDB[id].notes !== undefined) ? jsonDB[id].notes : [];
@@ -94,11 +102,11 @@
 
                 jsonDB[i].title = this.title;
             },
-            "notes": function(){
+            "notes": function () {
                 let i = parseInt(this.$route.params.id);
                 jsonDB[i].notes = this.notes;
             },
-            "date": function(){
+            "date": function () {
                 let i = parseInt(this.$route.params.id);
 
                 if (jsonDB[i] === undefined) {
@@ -112,12 +120,16 @@
             routerHasIndex() {
                 return !(this.$route.params.index === undefined);
             },
-            getDate(){
+            getDate() {
                 let d = new Date();
                 return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
             }
         },
         methods: {
+            saveInLocalStorage() {
+                localStorage.setItem("DB", JSON.stringify(jsonDB));
+                alert("gespeichert");
+            },
             changeTextareaContent() {
                 let index = this.$route.params.index;
                 if (index === undefined)
@@ -132,9 +144,15 @@
                 let id = this.$route.params.id;
                 let index = this.$route.params.index;
 
-                this.form.current.text = "";
+                let regex = /[0-9]:[0-9]/;
+                let isBible = val.match(regex) !== null;
+                let isSingnated = val[0] === "@";
 
-                console.log(this)
+                if(isBible && !isSingnated){
+                    val = "@" + val;
+                }
+
+                this.form.current.text = "";
 
                 if (index !== undefined) {
                     index = parseInt(index);
@@ -143,6 +161,8 @@
                 } else {
                     this.notes.push(val);
                 }
+
+                $('textarea').focus();
             },
             edit(index) {
                 if (index < 0 || index >= this.notes.length)

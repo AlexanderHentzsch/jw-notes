@@ -3,27 +3,20 @@
         <div class="w3-teal w3-card-2" style="position: fixed; top: 0; left: 0;width: 100%">
             <router-link to="/" class="w3-btn w3-hover-none"><i class="fas fa-chevron-left"></i></router-link>
             <input id="title" class="w3-teal w3-border-0" v-model="title" style="width: auto; padding-left: 8px">
-            <button @click="saveInLocalStorage()" class="w3-btn w3-teal w3-hover-none">Speichern</button>
         </div>
 
-        <div class="" style="margin: 30px 24px 120px; height: 100%">
+        <div class="" style="margin: 30px 24px 100%; height: 100%">
             <div>
                 <input class="w3-input w3-tiny w3-text-gray" style="border: 0" v-model="date">
             </div>
 
             <div>
                 <div v-for="(val, i) in notes" class="w3-row">
-                    <div class="val-link w3-col w3-right" style="width:50px"
-                         v-if="val[0] === '@'">
-                        <a :href="getLinkToWOL(val)" target="_blank"
-                           class="w3-btn w3-hover-none">
-                            <i class="fas fa-globe"></i>
-                        </a>
-                    </div>
-
-                    <div class="val-content w3-rest w3-hover-none"
-                         @click="edit(i)">
-                        {{getValue(val)}}
+                    <div class="val-content w3-col s12" @click="edit(i)">
+                        <span v-if="val[0] !== '@'">{{getValue(val)}}</span>
+                        <span v-if="val[0] === '@'">
+                            <a :href="getLinkToWOL(val)" target="_blank">{{getValue(val)}}</a>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -73,47 +66,30 @@
             }
         },
         mounted: function () {
-            if (this.$route.params.id === "new") {
-                let newId = jsonDB.length;
-                jsonDB[newId] = {};
-                this.$router.push(`/editor/${newId}`);
-                $('#title').focus();
+            let id = this.currentId;
+
+            if (id === "new") {
+                this.createNewNotesArray();
+            } else if (jsonDB[id] === undefined) {
+                return this.$router.push('/');
             }
 
-            let id = parseInt(this.$route.params.id);
-
-            if (jsonDB[id] === undefined)
-                return this.$router.push('/');
-
-            this.title = (jsonDB[id].title !== undefined) ? jsonDB[id].title : "";
-            this.date = (jsonDB[id].date !== undefined) ? jsonDB[id].date : "";
-            this.notes = (jsonDB[id].notes !== undefined) ? jsonDB[id].notes : [];
+            this.setDefaults();
         },
         watch: {
             "$route.params.index": function () {
                 this.changeTextareaContent();
             },
             "title": function () {
-                let i = parseInt(this.$route.params.id);
-
-                if (jsonDB[i] === undefined) {
-                    jsonDB[i] = {};
-                }
-
-                jsonDB[i].title = this.title;
+                jsonDB[this.currentId].title = this.title;
+                this.saveInLocalStorage();
             },
             "notes": function () {
-                let i = parseInt(this.$route.params.id);
-                jsonDB[i].notes = this.notes;
+                jsonDB[this.currentId].notes = this.notes;
             },
             "date": function () {
-                let i = parseInt(this.$route.params.id);
-
-                if (jsonDB[i] === undefined) {
-                    jsonDB[i] = {};
-                }
-
-                jsonDB[i].date = this.date;
+                jsonDB[this.currentId].date = this.date;
+                this.saveInLocalStorage();
             }
         },
         computed: {
@@ -123,12 +99,32 @@
             getDate() {
                 let d = new Date();
                 return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+            },
+            currentId() {
+                const id = this.$route.params.id;
+                return (id === "new") ? "new" : (parseInt(id) - 1);
             }
         },
         methods: {
+            setDefaults() {
+                const defaults = ["title", "notes", "date"];
+                for (let i in defaults) {
+                    let t = defaults[i];
+                    let json = jsonDB[this.currentId][t];
+                    this[t] = (json !== undefined) ? json : "";
+                    if(this.notes === "") {
+                        this.notes = [];
+                    }
+                }
+            },
+            createNewNotesArray() {
+                jsonDB.push({});
+                this.$router.push(`/editor/${jsonDB.length}`);
+                $('#title').focus();
+            },
             saveInLocalStorage() {
                 localStorage.setItem("DB", JSON.stringify(jsonDB));
-                alert("gespeichert");
+                console.log("gespeichert");
             },
             changeTextareaContent() {
                 let index = this.$route.params.index;
@@ -148,7 +144,7 @@
                 let isBible = val.match(regex) !== null;
                 let isSingnated = val[0] === "@";
 
-                if(isBible && !isSingnated){
+                if (isBible && !isSingnated) {
                     val = "@" + val;
                 }
 
@@ -162,6 +158,7 @@
                     this.notes.push(val);
                 }
 
+                this.saveInLocalStorage();
                 $('textarea').focus();
             },
             edit(index) {

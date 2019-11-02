@@ -1,4 +1,4 @@
 module.exports = {
-    publicPath: '/jw-notes/',
+    publicPath: '/vue-jw-notes/',
     outputDir: 'docs'
 };

@@ -1,52 +1,95 @@
 <template>
-    <div id="app" class="w3-content w3-container">
-        <div class="w3-center" style="padding-top: 24px">
-            <router-link to="/editor/new" class="w3-btn w3-teal">Neue Mitschrift</router-link>
-        </div>
-        <div>
-            <router-link v-for="(el, i) in jsonDBLocal"
-                         :to="'/editor/' + (i+1)"
-                         class="w3-btn w3-hover-none w3-left-align"
-                         style="display: block">
-                {{el.title}}
-            </router-link>
+    <div @click="clickDisplay()" style="height: 100%">
+
+        <div class="w3-display-container" style="height: 100%">
+
+            <div class="w3-display-middle">
+                <div class="w3-center">
+                    <div id="container-logo" class="theme-background fontRobotoCondensed">
+                        <span id="logo">JW</span>
+                        <br/>
+                        <span id="logo-sub">Notes</span>
+                    </div>
+                    <div id="container-hint">
+                        Tippen um die Anwendung im Vollbildmodus zu starten.
+                    </div>
+                </div>
+            </div>
+
+            <div class="w3-display-bottomright">
+                <div class="w3-right-align fontRaleway" style="margin-right: 12px">
+                    <p id="copyright">
+                        <span style="font-size: 8px">made by</span>
+                        <br>
+                        <span>Alexander Hentzsch</span>
+                    </p>
+                </div>
+            </div>
+            <!-- END w3-display-container -->
         </div>
     </div>
 </template>
 
 <script>
     export default {
-        name: 'app',
-        components: {},
-        data() {
-            return {
-                jsonDBLocal: []
-            }
-        },
-        mounted() {
-            this.loadFromLocalStorage();
-        },
-        computed: {
-            jsonDB() {
-                return jsonDB;
-            }
-        },
+        name: "Main",
         methods: {
-            getSavedDateStringReadable(string) {
-                let vals = string.split("-");
-                return `${vals[2]}.${vals[1]}.${vals[0]}`
+            clickDisplay() {
+                this.getFullscreen();
+                this.startVideo();
+                this.goToOverview();
             },
-            loadFromLocalStorage() {
-                const storage = JSON.parse(localStorage.getItem("DB"));
+            getFullscreen() {
+                if (!window.isMobile())
+                    return;
 
-                if(storage !== undefined && storage !== null) {
-                    jsonDB = storage;
-                    this.jsonDBLocal = jsonDB;
+                let DOM = document.querySelector("#app");
+
+                if (!document.fullscreenElement) {
+                    DOM.requestFullscreen();
                 }
+            },
+            startVideo() {
+                let DOM = document.querySelector("#player");
+                if (DOM.paused) {
+                    DOM.play();
+                }
+            },
+            goToOverview() {
+                this.$router.push('/overview/notes/');
             }
         }
     }
 </script>
 
-<style>
+<style scoped>
+    #container-logo {
+        width: 128px;
+        height: 128px;
+        margin: auto;
+    }
+
+    #logo {
+        font-size: 64px;
+    }
+
+    #logo-sub {
+        position: relative;
+        top: -25px;
+        font-size: 24px;
+        letter-spacing: 4px;
+        font-style: italic;
+    }
+
+    #container-hint {
+        text-align: center;
+        margin-top: 64px;
+        font-style: italic;
+    }
+
+    #copyright {
+        font-size: 10px;
+        color: #555;
+        line-height: 1.0;
+    }
 </style>

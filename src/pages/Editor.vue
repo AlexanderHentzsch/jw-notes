@@ -1,15 +1,13 @@
 <template>
-    <div id="Editor">
-        <div class="w3-teal w3-card-2" style="position: fixed; top: 0; left: 0;width: 100%">
-            <router-link to="/" class="w3-btn w3-hover-none"><i class="fas fa-chevron-left"></i></router-link>
-            <input id="title" class="w3-teal w3-border-0" v-model="title" style="width: auto; padding-left: 8px">
+    <div id="Editor" class="container-content fontRaleway">
+        <comp-header></comp-header>
+
+        <div class="w3-container">
+            <input id="title" class="font-note-title note-inputs" v-model="title">
+            <label id="label-title" for="title">Titel</label>
         </div>
 
-        <div class="" style="margin: 30px 24px 100%; height: 100%">
-            <div>
-                <input class="w3-input w3-tiny w3-text-gray" style="border: 0" v-model="date">
-            </div>
-
+        <div class="" style="margin: 24px 24px 100%; height: 100%">
             <div>
                 <div v-for="(val, i) in notes" class="w3-row">
                     <div class="val-content w3-col s12" @click="edit(i)">
@@ -21,27 +19,27 @@
                 </div>
             </div>
 
-            <div class="w3-teal" style="position:fixed; bottom: 0; left:0; padding: 8px; width: 100%">
+            <div class="" style="position:fixed; bottom: 0; left:0; padding: 8px; width: 100%; background-color: #000">
                 <div class="w3-row">
                     <div class="w3-col w3-right w3-center" style="width:50px; padding: 0 8px 0 4px">
                         <button @click="textareaToNotes()"
-                                class="w3-btn w3-hover-none w3-hover-teal w3-teal w3-round-xxlarge"
+                                class="w3-btn w3-hover-none w3-round-xxlarge"
                                 style="width: 50px; height: 50px">
                             <i class="fas fa-level-up-alt"></i>
                         </button>
                     </div>
                     <div v-if="routerHasIndex" class="w3-col w3-right w3-center" style="width:50px; padding: 0 8px 0 0">
-                        <button @click="abortEdit()" class="w3-btn w3-hover-none w3-hover-teal w3-teal w3-round-xxlarge"
+                        <button @click="abortEdit()" class="w3-btn w3-hover-none w3-round-xxlarge"
                                 style="width: 50px; height: 50px">
                             <i class="far fa-times-circle"></i>
                         </button>
                     </div>
                     <div class="w3-rest w3-container">
-                    <textarea v-model="form.current.text"
-                              @keyup.ctrl.enter="textareaToNotes()"
-                              @keyup.esc.exact="abortEdit()"
-                              class="w3-input w3-round-large"
-                              style="resize: none"></textarea>
+                        <textarea v-model="form.current.text"
+                                  @keyup.ctrl.enter="textareaToNotes()"
+                                  @keyup.esc.exact="abortEdit()"
+                                  class="note-inputs"
+                                  style="resize: none"></textarea>
                     </div>
                 </div>
             </div>
@@ -51,18 +49,21 @@
 </template>
 
 <script>
+    import CompHeader from "../components/compHeader";
+
     export default {
         name: "Editor",
+        components: {CompHeader},
         data() {
             return {
                 title: "",
                 date: "",
+                notes: [],
                 form: {
                     current: {
                         text: ""
                     }
-                },
-                notes: []
+                }
             }
         },
         mounted: function () {
@@ -93,38 +94,33 @@
             }
         },
         computed: {
+            getCurrentDate() {
+                let d = new Date();
+                return `${(d.getDate()).toString().padStart(2, "0")}.${(d.getMonth() + 1).toString().padStart(2, "0")}.${d.getFullYear()}`;
+            },
             routerHasIndex() {
                 return !(this.$route.params.index === undefined);
             },
-            getDate() {
-                let d = new Date();
-                return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-            },
             currentId() {
-                const id = this.$route.params.id;
+                const id = this.$route.params.idNotes;
                 return (id === "new") ? "new" : (parseInt(id) - 1);
             }
         },
         methods: {
             setDefaults() {
-                const defaults = ["title", "notes", "date"];
-                for (let i in defaults) {
-                    let t = defaults[i];
-                    let json = jsonDB[this.currentId][t];
-                    this[t] = (json !== undefined) ? json : "";
-                    if(this.notes === "") {
-                        this.notes = [];
-                    }
-                }
+                const cJSON = jsonDB[this.currentId];
+
+                this.title = (cJSON.title === undefined) ? this.getCurrentDate : cJSON.title;
+                this.date = (cJSON.date === undefined) ? this.getCurrentDate : cJSON.date;
+                this.notes = (cJSON.notes === undefined) ? [] : cJSON.notes;
             },
             createNewNotesArray() {
                 jsonDB.push({});
-                this.$router.push(`/editor/${jsonDB.length}`);
-                $('#title').focus();
+                this.$router.push(`/editor/notes/${jsonDB.length}`);
+                document.querySelector('#title').focus();
             },
             saveInLocalStorage() {
                 localStorage.setItem("DB", JSON.stringify(jsonDB));
-                console.log("gespeichert");
             },
             changeTextareaContent() {
                 let index = this.$route.params.index;
@@ -136,8 +132,10 @@
                 this.form.current.text = this.notes[index];
             },
             textareaToNotes() {
+                this.date = this.getCurrentDate;
+
                 let val = this.form.current.text;
-                let id = this.$route.params.id;
+                let id = this.$route.params.idNotes;
                 let index = this.$route.params.index;
 
                 let regex = /[0-9]:[0-9]/;
@@ -153,35 +151,39 @@
                 if (index !== undefined) {
                     index = parseInt(index);
                     this.notes[index] = val;
-                    this.$router.push(`/editor/${id}`);
+                    this.$router.push(`/editor/notes/${id}`);
                 } else {
                     this.notes.push(val);
                 }
 
                 this.saveInLocalStorage();
-                $('textarea').focus();
+                document.querySelector('textarea').focus();
             },
             edit(index) {
                 if (index < 0 || index >= this.notes.length)
                     return;
 
-                let id = this.$route.params.id;
-                this.$router.push(`/editor/${id}/${index}`);
-                $('textarea').focus();
+                let id = this.$route.params.idNotes;
+                this.$router.push(`/editor/notes/${id}/${index}`);
+
+                document.querySelector('textarea').focus();
             },
             abortEdit() {
-                let id = this.$route.params.id;
+                let id = this.$route.params.idNotes;
                 let index = this.$route.params.index;
 
                 this.form.current.text = "";
                 if (index !== undefined)
-                    this.$router.push(`/editor/${id}`);
+                    this.$router.push(`/editor/notes/${id}`);
             },
             getValue(val) {
                 let first = val[0];
-                if (first === "@") {
+                if (first === "@")
                     return val.substr(1);
-                }
+
+                if (val === "")
+                    return ' ';
+
                 return val;
             },
             getLinkToWOL(searchStr) {
@@ -193,5 +195,23 @@
 </script>
 
 <style scoped>
+    #title {
+        font-size: 26px;
+    }
 
+    #label-title {
+        font-size: 12px;
+        margin-left: 8px;
+    }
+
+    .note-inputs {
+        background-color: inherit;
+        color: inherit;
+        border: none;
+        border-bottom: 1px solid rgb(97, 97, 97);
+        display: block;
+        width: 100%;
+        margin: 0;
+        padding: 2px 8px;
+    }
 </style>

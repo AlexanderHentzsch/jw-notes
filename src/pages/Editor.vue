@@ -78,28 +78,27 @@
             }
         },
         computed: {
-            routerHasIndex() {
-                return !(this.$route.params.index === undefined);
+            jsonDB() {
+                return window.jsonDB;
             },
             currentId() {
                 const id = this.$route.params.idNotes;
                 return (id === "new") ? "new" : (parseInt(id) - 1);
             },
-            jsonDB() {
-                return window.jsonDB;
+            routerHasIndex() {
+                return !(this.$route.params.index === undefined);
+            },
+            documentWidth() {
+                return document.getElementsByTagName("html")[0].clientWidth - (8 * 2); /* padding */
             },
             widthContainerSpecialBtn() {
-                let width = this.documentWidth;
                 let cBtn = (this.routerHasIndex) ? 3 : 1;
                 let deductWidth = 50 * cBtn;
-                return width - deductWidth;
+                return this.documentWidth - deductWidth;
             },
             widthContainerStandardBtn() {
                 let cBtn = (this.routerHasIndex) ? 3 : 1;
                 return 50 * cBtn;
-            },
-            documentWidth() {
-                return document.getElementsByTagName("html")[0].clientWidth - (8 * 2); /* padding */
             }
         },
         mounted: function () {
@@ -134,6 +133,15 @@
             }
         },
         methods: {
+            loadFontSize() {
+                let options = localStorage.getItem("options");
+
+                if (options === undefined)
+                    return;
+
+                options = JSON.parse(options);
+                this.options.fontSize = options.fontSize;
+            },
             getDate(type, d = new Date()) {
                 const padZero = (num) => {
                     return num.toString().padStart(2, "0");
@@ -184,6 +192,25 @@
 
                 this.form.current.text = this.notes[index];
             },
+            addEmoji(type) {
+                let emoji = "";
+
+                switch (type) {
+                    case "star":
+                        emoji = "⭐";
+                        break;
+                    case "questionMark":
+                        emoji = "❓";
+                        break;
+                    case "video":
+                        emoji = "🎥";
+                        break;
+                    default:
+                        emoji = "";
+                }
+
+                this.form.current.text = emoji + " " + this.form.current.text;
+            },
             textareaToNotes() {
                 this.date = this.getDate("unix");
 
@@ -229,6 +256,11 @@
                 if (index !== undefined)
                     this.$router.push(`/editor/notes/${id}`);
             },
+            deleteIndex() {
+                let index = parseInt(this.$route.params.index);
+                this.notes.splice(index, 1);
+                this.abortEdit();
+            },
             getValue(val) {
                 let first = val[0];
                 if (first === "@")
@@ -242,41 +274,6 @@
             getLinkToWOL(searchStr) {
                 searchStr = this.getValue(searchStr);
                 return "https://wol.jw.org/de/wol/l/r10/lp-x?q=" + encodeURIComponent(searchStr);
-            },
-            loadFontSize() {
-                let options = localStorage.getItem("options");
-
-                if (options === undefined)
-                    return;
-
-                options = JSON.parse(options);
-                this.options.fontSize = options.fontSize;
-            },
-
-            deleteIndex() {
-                let index = parseInt(this.$route.params.index);
-                this.notes.splice(index, 1);
-                this.abortEdit();
-            },
-
-            addEmoji(type) {
-                let emoji = "";
-
-                switch (type) {
-                    case "star":
-                        emoji = "⭐";
-                        break;
-                    case "questionMark":
-                        emoji = "❓";
-                        break;
-                    case "video":
-                        emoji = "🎥";
-                        break;
-                    default:
-                        emoji = "";
-                }
-
-                this.form.current.text = emoji + " " + this.form.current.text;
             }
         }
     }

@@ -76,6 +76,9 @@
             currentId() {
                 const id = this.$route.params.idNotes;
                 return (id === "new") ? "new" : (parseInt(id) - 1);
+            },
+            jsonDB() {
+                return jsonDB;
             }
         },
         mounted: function () {
@@ -83,7 +86,7 @@
 
             if (id === "new") {
                 this.createNewNotesArray();
-            } else if (jsonDB[id] === undefined) {
+            } else if (this.jsonDB[id] === undefined) {
                 return this.$router.push('/');
             }
 
@@ -94,14 +97,14 @@
                 this.changeTextareaContent();
             },
             "title": function () {
-                jsonDB[this.currentId].title = (this.title === "") ? this.getDate("day") : this.title;
+                this.jsonDB[this.currentId].title = (this.title === "") ? this.getDate("day") : this.title;
                 this.saveInLocalStorage();
             },
             "notes": function () {
-                jsonDB[this.currentId].notes = this.notes;
+                this.jsonDB[this.currentId].notes = this.notes;
             },
             "date": function () {
-                jsonDB[this.currentId].date = this.date;
+                this.jsonDB[this.currentId].date = this.date;
                 this.saveInLocalStorage();
             }
         },
@@ -134,19 +137,19 @@
                 }
             },
             setDefaults() {
-                const cJSON = jsonDB[this.currentId];
+                const cJSON = this.jsonDB[this.currentId];
 
                 this.title = (cJSON.title === undefined) ? this.getDate("day") : cJSON.title;
                 this.date = (cJSON.date === undefined) ? this.getDate("unix") : cJSON.date;
                 this.notes = (cJSON.notes === undefined) ? [] : cJSON.notes;
             },
             createNewNotesArray() {
-                jsonDB.push({});
-                this.$router.push(`/editor/notes/${jsonDB.length}`);
+                this.jsonDB.push({});
+                this.$router.push(`/editor/notes/${this.jsonDB.length}`);
                 document.querySelector('#title').focus();
             },
             saveInLocalStorage() {
-                localStorage.setItem("DB", JSON.stringify(jsonDB));
+                localStorage.setItem("DB", JSON.stringify(this.jsonDB));
             },
             changeTextareaContent() {
                 let index = this.$route.params.index;

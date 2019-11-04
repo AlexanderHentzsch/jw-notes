@@ -1,7 +1,9 @@
 <template>
     <div class="container-content">
         <comp-header></comp-header>
-        <h1>Optionen</h1>
+        <div class="w3-content w3-container">
+            <h1>Optionen</h1>
+        </div>
     </div>
 </template>
 

@@ -14,7 +14,6 @@
                              style="display: block">
                     {{el.title}}
                 </router-link>
-
             </div>
         </div>
 

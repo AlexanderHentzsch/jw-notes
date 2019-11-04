@@ -224,6 +224,7 @@
                 }
 
                 this.form.current.text = emoji + " " + this.form.current.text;
+                document.querySelector("textarea").focus();
             },
             textareaToNotes() {
                 this.date = this.getDate("unix");

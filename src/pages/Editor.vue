@@ -23,27 +23,32 @@
             </div>
 
             <div class="" style="position:fixed; bottom: 0; left:0; padding: 8px; width: 100%; background-color: #000">
-                <div class="w3-row">
-                    <div class="w3-col w3-right w3-center" style="width:50px; padding: 0 8px 0 4px">
-                        <button @click="textareaToNotes()"
-                                class="w3-btn w3-hover-none w3-round-xxlarge"
-                                style="width: 50px; height: 50px">
+                <div id="toolbox" class="w3-row">
+                    <div class="w3-left w3-rest container-special-btn"
+                         :style="{width: widthContainerSpecialBtn + 'px'}">
+                        <button @click="addEmoji('star')" class="w3-btn w3-hover-none editor-btn">⭐</button>
+                        <button @click="addEmoji('questionMark')" class="w3-btn w3-hover-none editor-btn">❓</button>
+                        <button @click="addEmoji('video')" class="w3-btn w3-hover-none editor-btn">🎥</button>
+                    </div>
+                    <div class="w3-col w3-right" :style="{width: widthContainerStandardBtn + 'px'}">
+                        <button v-if="routerHasIndex" @click="deleteIndex()" class="w3-btn w3-hover-none editor-btn">
+                            <i class="far fa-trash-alt"></i>
+                        </button>
+                        <button v-if="routerHasIndex" @click="abortEdit()" class="w3-btn w3-hover-none editor-btn">
+                            <i class="far fa-times-circle"></i>
+                        </button>
+                        <button @click="textareaToNotes()" class="w3-btn w3-hover-none editor-btn">
                             <i class="fas fa-level-up-alt"></i>
                         </button>
                     </div>
-                    <div v-if="routerHasIndex" class="w3-col w3-right w3-center" style="width:50px; padding: 0 8px 0 0">
-                        <button @click="abortEdit()" class="w3-btn w3-hover-none w3-round-xxlarge"
-                                style="width: 50px; height: 50px">
-                            <i class="far fa-times-circle"></i>
-                        </button>
-                    </div>
-                    <div class="w3-rest w3-container">
+                </div>
+                <div class="w3-container">
                         <textarea v-model="form.current.text"
                                   @keyup.ctrl.enter="textareaToNotes()"
                                   @keyup.esc.exact="abortEdit()"
                                   class="note-inputs"
                                   style="resize: none"></textarea>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -67,7 +72,7 @@
                         text: ""
                     }
                 },
-                options:{
+                options: {
                     fontSize: 12
                 }
             }
@@ -82,6 +87,19 @@
             },
             jsonDB() {
                 return window.jsonDB;
+            },
+            widthContainerSpecialBtn() {
+                let width = this.documentWidth;
+                let cBtn = (this.routerHasIndex) ? 3 : 1;
+                let deductWidth = 50 * cBtn;
+                return width - deductWidth;
+            },
+            widthContainerStandardBtn() {
+                let cBtn = (this.routerHasIndex) ? 3 : 1;
+                return 50 * cBtn;
+            },
+            documentWidth() {
+                return document.getElementsByTagName("html")[0].clientWidth - (8 * 2); /* padding */
             }
         },
         mounted: function () {
@@ -118,7 +136,7 @@
                     return num.toString().padStart(2, "0");
                 };
 
-                if(typeof d !== "object"){
+                if (typeof d !== "object") {
                     d = new Date(d);
                 }
 
@@ -193,7 +211,7 @@
                 document.querySelector('textarea').focus();
             },
             edit(index) {
-                if (index < 0 || index >= this.notes.length)
+                if (index < 0 || index >= this.notes.length || index === parseInt(this.$route.params.index))
                     return;
 
                 let id = this.$route.params.idNotes;
@@ -223,14 +241,40 @@
                 searchStr = this.getValue(searchStr);
                 return "https://wol.jw.org/de/wol/l/r10/lp-x?q=" + encodeURIComponent(searchStr);
             },
-            loadFontSize(){
+            loadFontSize() {
                 let options = localStorage.getItem("options");
 
-                if(options === undefined)
+                if (options === undefined)
                     return;
 
                 options = JSON.parse(options);
                 this.options.fontSize = options.fontSize;
+            },
+
+            deleteIndex() {
+                let index = parseInt(this.$route.params.index);
+                this.notes.splice(index, 1);
+                this.abortEdit();
+            },
+
+            addEmoji(type) {
+                let emoji = "";
+
+                switch (type) {
+                    case "star":
+                        emoji = "⭐";
+                        break;
+                    case "questionMark":
+                        emoji = "❓";
+                        break;
+                    case "video":
+                        emoji = "🎥";
+                        break;
+                    default:
+                        emoji = "";
+                }
+
+                this.form.current.text = emoji + " " + this.form.current.text;
             }
         }
     }
@@ -255,5 +299,17 @@
         width: 100%;
         margin: 0;
         padding: 2px 8px;
+    }
+
+    .editor-btn {
+        width: 50px;
+        height: 50px;
+    }
+
+    .container-special-btn {
+        white-space: nowrap;
+        display: inline;
+        overflow-x: auto;
+        max-width: 100%;
     }
 </style>

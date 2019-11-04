@@ -42,14 +42,22 @@
                         </button>
                     </div>
                 </div>
-                <div class="w3-container">
+
+                <div class="w3-container" id="container-textarea">
                         <textarea v-model="form.current.text"
                                   @keyup.ctrl.enter="textareaToNotes()"
                                   @keyup.esc.exact="abortEdit()"
+                                  @keyup="setTextareaHeight()"
                                   class="note-inputs"
-                                  style="resize: none"></textarea>
+                                  :style="{resize: 'none', height: textareaHeight + 'px'}"></textarea>
 
                 </div>
+            </div>
+
+            <div id="container-textarea-height"
+                 class="w3-container note-inputs"
+                 :style="{position: 'fixed', visibility: 'hidden', width: textareaWidth + 'px'}">
+                {{ form.current.text }}
             </div>
         </div>
     </div>
@@ -74,7 +82,9 @@
                 },
                 options: {
                     fontSize: 12
-                }
+                },
+                textareaHeight: 32,
+                defaultTextareaHeight: 32
             }
         },
         computed: {
@@ -99,6 +109,10 @@
             widthContainerStandardBtn() {
                 let cBtn = (this.routerHasIndex) ? 3 : 1;
                 return 50 * cBtn;
+            },
+            textareaWidth() {
+                let DOM = document.querySelector("textarea");
+                return (DOM === null) ? 300 : DOM.offsetWidth;
             }
         },
         mounted: function () {
@@ -238,6 +252,8 @@
 
                 this.saveInLocalStorage();
                 document.querySelector('textarea').focus();
+                this.textareaHeight = parseInt(this.defaultTextareaHeight);
+                console.log(this.textareaHeight)
             },
             edit(index) {
                 if (index < 0 || index >= this.notes.length || index === parseInt(this.$route.params.index))
@@ -247,12 +263,14 @@
                 this.$router.push(`/editor/notes/${id}/${index}`);
 
                 document.querySelector('textarea').focus();
+                this.textareaHeight = parseInt(this.defaultTextareaHeight);
             },
             abortEdit() {
                 let id = this.$route.params.idNotes;
                 let index = this.$route.params.index;
 
                 this.form.current.text = "";
+                this.textareaHeight = parseInt(this.defaultTextareaHeight);
                 if (index !== undefined)
                     this.$router.push(`/editor/notes/${id}`);
             },
@@ -274,6 +292,12 @@
             getLinkToWOL(searchStr) {
                 searchStr = this.getValue(searchStr);
                 return "https://wol.jw.org/de/wol/l/r10/lp-x?q=" + encodeURIComponent(searchStr);
+            },
+            setTextareaHeight() {
+                let h = document.querySelector("#container-textarea-height").offsetHeight;
+                if (h > this.defaultTextareaHeight) {
+                    this.textareaHeight = h;
+                }
             }
         }
     }
@@ -298,6 +322,7 @@
         width: 100%;
         margin: 0;
         padding: 2px 8px;
+        overflow: hidden;
     }
 
     .editor-btn {

@@ -66,6 +66,15 @@
                 }
             }
         },
+        computed: {
+            routerHasIndex() {
+                return !(this.$route.params.index === undefined);
+            },
+            currentId() {
+                const id = this.$route.params.idNotes;
+                return (id === "new") ? "new" : (parseInt(id) - 1);
+            }
+        },
         mounted: function () {
             let id = this.currentId;
 
@@ -82,7 +91,7 @@
                 this.changeTextareaContent();
             },
             "title": function () {
-                jsonDB[this.currentId].title = this.title;
+                jsonDB[this.currentId].title = (this.title === "") ? this.getDate("day") : this.title;
                 this.saveInLocalStorage();
             },
             "notes": function () {
@@ -93,25 +102,34 @@
                 this.saveInLocalStorage();
             }
         },
-        computed: {
-            getCurrentDate() {
-                let d = new Date();
-                return `${(d.getDate()).toString().padStart(2, "0")}.${(d.getMonth() + 1).toString().padStart(2, "0")}.${d.getFullYear()}`;
-            },
-            routerHasIndex() {
-                return !(this.$route.params.index === undefined);
-            },
-            currentId() {
-                const id = this.$route.params.idNotes;
-                return (id === "new") ? "new" : (parseInt(id) - 1);
-            }
-        },
         methods: {
+            getDate(type, d = new Date()) {
+                const padZero = (num) => {
+                    return num.toString().padStart(2, "0");
+                };
+
+                let unix = d.getTime();
+                let day = padZero(d.getDate());
+                let month = padZero(d.getMonth() + 1);
+                let year = d.getFullYear();
+                let hours = padZero(d.getHours());
+                let minutes = padZero(d.getMinutes());
+
+                switch (type) {
+                    case "unix":
+                        return unix;
+                    case "day&time":
+                        return `${day}.${month}.${year} ${hours}:${minutes}`;
+                    case "day":
+                    default:
+                        return `${day}.${month}.${year}`;
+                }
+            },
             setDefaults() {
                 const cJSON = jsonDB[this.currentId];
 
-                this.title = (cJSON.title === undefined) ? this.getCurrentDate : cJSON.title;
-                this.date = (cJSON.date === undefined) ? this.getCurrentDate : cJSON.date;
+                this.title = (cJSON.title === undefined) ? this.getDate("day") : cJSON.title;
+                this.date = (cJSON.date === undefined) ? this.getDate("unix") : cJSON.date;
                 this.notes = (cJSON.notes === undefined) ? [] : cJSON.notes;
             },
             createNewNotesArray() {
@@ -132,7 +150,7 @@
                 this.form.current.text = this.notes[index];
             },
             textareaToNotes() {
-                this.date = this.getCurrentDate;
+                this.date = this.getDate("unix");
 
                 let val = this.form.current.text;
                 let id = this.$route.params.idNotes;

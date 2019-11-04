@@ -150,11 +150,13 @@
             loadFontSize() {
                 let options = localStorage.getItem("options");
 
-                if (options === undefined)
+                if (options === undefined || options === null)
                     return;
 
                 options = JSON.parse(options);
-                this.options.fontSize = options.fontSize;
+                if(options.hasOwnProperty('fontSize')) {
+                    this.options.fontSize = options.fontSize;
+                }
             },
             getDate(type, d = new Date()) {
                 const padZero = (num) => {

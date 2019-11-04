@@ -52,7 +52,7 @@
             loadOptions() {
                 let storage = localStorage.getItem(this.localStorageKey);
 
-                if (storage === undefined)
+                if (storage === undefined || storage === null)
                     return;
 
                 storage = JSON.parse(storage);

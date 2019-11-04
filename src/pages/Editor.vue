@@ -4,7 +4,10 @@
 
         <div class="w3-container">
             <input id="title" class="font-note-title note-inputs" v-model="title">
-            <label id="label-title" for="title">Titel</label>
+            <label id="label-title" for="title">
+                <template v-if="title === ''">Titel</template>
+                <template v-if="title !== ''">{{getDate("day&time", date)}}</template>
+            </label>
         </div>
 
         <div class="" style="margin: 24px 24px 100%; height: 100%">
@@ -108,18 +111,23 @@
                     return num.toString().padStart(2, "0");
                 };
 
+                if(typeof d !== "object"){
+                    d = new Date(d);
+                }
+
                 let unix = d.getTime();
                 let day = padZero(d.getDate());
                 let month = padZero(d.getMonth() + 1);
                 let year = d.getFullYear();
-                let hours = padZero(d.getHours());
-                let minutes = padZero(d.getMinutes());
+                let h = padZero(d.getHours());
+                let min = padZero(d.getMinutes());
+                let sec = padZero(d.getSeconds());
 
                 switch (type) {
                     case "unix":
                         return unix;
                     case "day&time":
-                        return `${day}.${month}.${year} ${hours}:${minutes}`;
+                        return `${day}.${month}.${year} ${h}:${min}:${sec}`;
                     case "day":
                     default:
                         return `${day}.${month}.${year}`;

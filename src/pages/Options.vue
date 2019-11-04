@@ -5,8 +5,12 @@
             <h1>Optionen</h1>
 
             <div class="slidecontainer">
-                <input type="range" min="8" max="68" value="50" class="slider" id="myRange">
+                <input type="range" v-model="fontSize" @change="saveOptions()" min="0"
+                       :max="possibleTextHeight.length - 1" class="slider"
+                       id="myRange">
             </div>
+
+            <p>Schriftgröße: {{selectedFontSize}}px</p>
         </div>
     </div>
 </template>
@@ -16,7 +20,45 @@
 
     export default {
         name: "Options",
-        components: {CompHeader}
+        components: {CompHeader},
+        data() {
+            return {
+                fontSize: 4,
+                localStorageKey: "options"
+            }
+        },
+        computed: {
+            possibleTextHeight() {
+                return [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72];
+            },
+            selectedFontSize() {
+                return this.possibleTextHeight[this.fontSize];
+            },
+            jsonDB() {
+                return window.jsonDB;
+            }
+        },
+        mounted() {
+            this.loadOptions();
+        },
+        methods: {
+            saveOptions() {
+                let options = {
+                    fontSize: this.selectedFontSize
+                };
+                let key = this.localStorageKey;
+                localStorage.setItem(key, JSON.stringify(options));
+            },
+            loadOptions() {
+                let storage = localStorage.getItem(this.localStorageKey);
+
+                if (storage === undefined)
+                    return;
+
+                storage = JSON.parse(storage);
+                this.fontSize = this.possibleTextHeight.indexOf(storage.fontSize);
+            }
+        }
     }
 </script>
 

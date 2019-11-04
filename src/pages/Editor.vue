@@ -12,7 +12,7 @@
 
         <div class="" style="margin: 24px 24px 100%; height: 100%">
             <div>
-                <div v-for="(val, i) in notes" class="w3-row">
+                <div v-for="(val, i) in notes" class="w3-row" :style="{fontSize: options.fontSize + 'px'}">
                     <div class="val-content w3-col s12" @click="edit(i)">
                         <span v-if="val[0] !== '@'">{{getValue(val)}}</span>
                         <span v-if="val[0] === '@'">
@@ -66,6 +66,9 @@
                     current: {
                         text: ""
                     }
+                },
+                options:{
+                    fontSize: 12
                 }
             }
         },
@@ -91,6 +94,7 @@
             }
 
             this.setDefaults();
+            this.loadFontSize();
         },
         watch: {
             "$route.params.index": function () {
@@ -218,6 +222,15 @@
             getLinkToWOL(searchStr) {
                 searchStr = this.getValue(searchStr);
                 return "https://wol.jw.org/de/wol/l/r10/lp-x?q=" + encodeURIComponent(searchStr);
+            },
+            loadFontSize(){
+                let options = localStorage.getItem("options");
+
+                if(options === undefined)
+                    return;
+
+                options = JSON.parse(options);
+                this.options.fontSize = options.fontSize;
             }
         }
     }

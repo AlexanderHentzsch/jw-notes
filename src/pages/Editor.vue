@@ -107,8 +107,11 @@
 
             if (id === "new") {
                 this.createNewNotesArray();
+                document.querySelector('#title').focus();
             } else if (this.jsonDB[id] === undefined) {
                 return this.$router.push('/');
+            } else {
+                document.querySelector('textarea').focus();
             }
 
             this.setDefaults();
@@ -168,7 +171,6 @@
             createNewNotesArray() {
                 this.jsonDB.push({});
                 this.$router.push(`/editor/notes/${this.jsonDB.length}`);
-                document.querySelector('#title').focus();
             },
             saveInLocalStorage() {
                 localStorage.setItem("DB", JSON.stringify(this.jsonDB));

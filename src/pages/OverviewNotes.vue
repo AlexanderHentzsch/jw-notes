@@ -37,7 +37,7 @@
         },
         computed: {
             jsonDB() {
-                return jsonDB;
+                return window.jsonDB;
             },
             jsonDBLocalReverse() {
                 let a = JSON.parse(JSON.stringify(this.jsonDBLocal));

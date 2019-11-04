@@ -78,7 +78,7 @@
                 return (id === "new") ? "new" : (parseInt(id) - 1);
             },
             jsonDB() {
-                return jsonDB;
+                return window.jsonDB;
             }
         },
         mounted: function () {

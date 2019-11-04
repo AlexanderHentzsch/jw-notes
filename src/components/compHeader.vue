@@ -11,14 +11,6 @@
                     <i class='fas fa-cog' style="position: relative; top: 9px;"></i>
                 </router-link>
             </div>
-            <div class="container-btn w3-col w3-right">
-                <button v-if="isFullscreen" @click="exitFullscreen()" class="w3-btn w3-hover-none">
-                    <i class='fas fa-compress'></i>
-                </button>
-                <button v-if="!isFullscreen" @click="requestFullscreen()" class="w3-btn w3-hover-none">
-                    <i class='fas fa-expand'></i>
-                </button>
-            </div>
             <div class="w3-rest" style="height: 55px;">
                 <button class="w3-btn w3-hover-none fontRobotoCondensed" style="padding-left: 0;text-align: left;">
                     JW Notes
@@ -32,18 +24,10 @@
 <script>
     export default {
         name: "CompHeader",
-        data() {
-            return {
-                isFullscreen: false
-            }
-        },
         computed: {
             domApp() {
                 return document.querySelector("#app");
             }
-        },
-        mounted(){
-            this.setIsFullscreen();
         },
         methods: {
             goBack() {
@@ -71,18 +55,6 @@
                 }
 
                 this.$router.push(nROUTE);
-            },
-            requestFullscreen() {
-                this.domApp.requestFullscreen();
-                setTimeout(this.setIsFullscreen, 100);
-            },
-            exitFullscreen() {
-                document.exitFullscreen();
-                setTimeout(this.setIsFullscreen, 100);
-
-            },
-            setIsFullscreen() {
-                this.isFullscreen = document.fullscreenElement !== null;
             }
         }
     }

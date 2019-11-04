@@ -35,19 +35,8 @@
         name: "Main",
         methods: {
             clickDisplay() {
-                this.getFullscreen();
                 this.startVideo();
                 this.goToOverview();
-            },
-            getFullscreen() {
-                if (!window.isMobile())
-                    return;
-
-                let DOM = document.querySelector("#app");
-
-                if (!document.fullscreenElement) {
-                    DOM.requestFullscreen();
-                }
             },
             startVideo() {
                 let DOM = document.querySelector("#player");

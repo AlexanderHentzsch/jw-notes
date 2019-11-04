@@ -8,7 +8,7 @@
                 <router-link to="/editor/notes/new" class="w3-block w3-btn theme-background">Neue Mitschrift</router-link>
             </div>
             <div>
-                <router-link v-for="(el, i) in jsonDBLocal"
+                <router-link v-for="(el, i) in jsonDBLocalReverse"
                              :to="'/editor/notes/' + (i+1)"
                              class="font-note-title w3-large w3-btn w3-hover-none w3-left-align"
                              style="display: block">
@@ -39,6 +39,10 @@
         computed: {
             jsonDB() {
                 return jsonDB;
+            },
+            jsonDBLocalReverse() {
+                let a = JSON.parse(JSON.stringify(this.jsonDBLocal));
+                return a.reverse();
             }
         },
         methods: {

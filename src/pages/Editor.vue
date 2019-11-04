@@ -193,7 +193,7 @@
                 document.querySelector('textarea').focus();
             },
             edit(index) {
-                if (index < 0 || index >= this.notes.length)
+                if (index < 0 || index >= this.notes.length || index === parseInt(this.$route.params.index))
                     return;
 
                 let id = this.$route.params.idNotes;

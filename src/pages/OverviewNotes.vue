@@ -9,7 +9,7 @@
             </div>
             <div>
                 <router-link v-for="(el, i) in jsonDBLocalReverse"
-                             :to="'/editor/notes/' + (i+1)"
+                             :to="'/editor/notes/' + getReversedPos(i)"
                              class="font-note-title w3-large w3-btn w3-hover-none w3-left-align"
                              style="display: block">
                     {{el.title}}
@@ -45,6 +45,10 @@
             }
         },
         methods: {
+            getReversedPos(pos){
+                let l = this.jsonDBLocal.length - 1;
+                return (l - pos) + 1;
+            },
             getSavedDateStringReadable(string) {
                 let vals = string.split("-");
                 return `${vals[2]}.${vals[1]}.${vals[0]}`

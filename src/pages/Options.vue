@@ -4,26 +4,35 @@
         <div class="w3-content w3-container">
             <h1>Optionen</h1>
 
-            <p :style="{fontSize: selectedFontSize + 'px', textAlign: 'right'}">Schriftgröße: {{selectedFontSize}}px</p>
-            <div class="slidecontainer">
+            <div>
+                <p :style="{fontSize: selectedFontSize + 'px', textAlign: 'right'}">Schriftgröße:
+                    {{selectedFontSize}}px</p>
                 <input type="range" v-model="fontSize" @change="saveOptions()" min="0"
                        :max="possibleTextHeight.length - 1" class="slider"
                        id="fontSizeRange">
             </div>
 
-            <h2 style="margin-top: 64px">Lizenz</h2>
-            <p>
-                <a href="https://github.com/BillAlex-BASoftware/jw-notes/blob/master/LICENSE" target="_blank">
-                    JW Notes - The MIT License (MIT)
-                </a>
-            </p>
+            <div>
+                <h2 style="margin-top: 64px">Lizenz</h2>
+                <p>
+                    <a href="https://github.com/BillAlex-BASoftware/jw-notes/blob/master/LICENSE" target="_blank">
+                        JW Notes - The MIT License (MIT)
+                    </a>
+                </p>
 
-            <h3 style="margin-top: 48px">Third-party libraries</h3>
-            <p>
-                <a href="https://github.com/vuejs/vue/blob/dev/LICENSE" target="_blank">
-                    Vue.js - The MIT License (MIT)
-                </a>
-            </p>
+                <h3 style="margin-top: 48px">Third-party libraries</h3>
+                <p>
+                    <a href="https://github.com/vuejs/vue/blob/dev/LICENSE" target="_blank">
+                        Vue.js - The MIT License (MIT)
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <div id="container-github">
+            <a :href="hrefGitHub" id="a-github" target="_blank">
+                Projekt auf <span id="span-github">GitHub <i class="fab fa-github"></i></span>
+            </a>
         </div>
     </div>
 </template>
@@ -37,7 +46,8 @@
         data() {
             return {
                 fontSize: 4,
-                localStorageKey: "options"
+                localStorageKey: "options",
+                hrefGitHub: "https://github.com/BillAlex-BASoftware/jw-notes"
             }
         },
         computed: {
@@ -82,5 +92,26 @@
 
     #fontSizeRange {
         width: 100%;
+    }
+
+    #container-github{
+        position: fixed;
+        bottom: 0px;
+        padding: 16px;
+        text-align: center;
+        width: 100%;
+    }
+
+    #a-github{
+        text-decoration: none;
+    }
+
+    #span-github{
+        background-color: #fff;
+        color: #000;
+        border-radius: 60px;
+        display: inline-block;
+        padding: 0 8px;
+        margin-left: 2px;
     }
 </style>

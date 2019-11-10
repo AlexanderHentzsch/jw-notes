@@ -4,13 +4,14 @@
         <div class="w3-content w3-container">
             <h1>Optionen</h1>
 
+            <p :style="{fontSize: selectedFontSize + 'px', textAlign: 'right'}">Schriftgröße: {{selectedFontSize}}px</p>
             <div class="slidecontainer">
                 <input type="range" v-model="fontSize" @change="saveOptions()" min="0"
                        :max="possibleTextHeight.length - 1" class="slider"
-                       id="myRange">
+                       id="fontSizeRange">
             </div>
 
-            <p>Schriftgröße: {{selectedFontSize}}px</p>
+
         </div>
     </div>
 </template>
@@ -65,5 +66,9 @@
 <style scoped>
     h1 {
         font-size: 26px;
+    }
+
+    #fontSizeRange{
+        width: 100%;
     }
 </style>

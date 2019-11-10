@@ -11,7 +11,19 @@
                        id="fontSizeRange">
             </div>
 
+            <h2 style="margin-top: 64px">Lizenz</h2>
+            <p>
+                <a href="https://github.com/BillAlex-BASoftware/jw-notes/blob/master/LICENSE" target="_blank">
+                    JW Notes - The MIT License (MIT)
+                </a>
+            </p>
 
+            <h3 style="margin-top: 48px">Third-party libraries</h3>
+            <p>
+                <a href="https://github.com/vuejs/vue/blob/dev/LICENSE" target="_blank">
+                    Vue.js - The MIT License (MIT)
+                </a>
+            </p>
         </div>
     </div>
 </template>
@@ -68,7 +80,7 @@
         font-size: 26px;
     }
 
-    #fontSizeRange{
+    #fontSizeRange {
         width: 100%;
     }
 </style>

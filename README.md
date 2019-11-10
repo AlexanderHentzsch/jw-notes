@@ -12,7 +12,7 @@ Die wesentlichen Unterschiede zu herkömmlichen Schreibprogrammen sind:
 *Hierfür muss das Gerät schwarze Bildpunkte als „nicht leuchten“ Interpretieren (Displaytyp: OLED).
 
 ## Lizenz
-[_**JW Notes**_  ](https://github.com/BillAlex-BASoftware/jw-notes) - [The MIT License (MIT)](https://github.com/vuejs/vue/blob/dev/LICENSE)
+[_**JW Notes**_  ](https://github.com/BillAlex-BASoftware/jw-notes) - [The MIT License (MIT)](https://github.com/BillAlex-BASoftware/jw-notes/blob/master/LICENSE)
 
 ## Third-party libraries
 [_**Vue.js**_  ](https://github.com/vuejs/vue) - [The MIT License (MIT)](https://github.com/vuejs/vue/blob/dev/LICENSE)

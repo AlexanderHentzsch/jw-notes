@@ -19,9 +19,11 @@
             <div class="w3-display-bottomright">
                 <div class="w3-right-align fontRaleway" style="margin-right: 12px">
                     <p id="copyright">
-                        <span style="font-size: 8px">made by</span>
+                        <span class="w3-tiny">made by</span>
                         <br>
-                        <span>Alexander Hentzsch</span>
+                        <span class="w3-small">Alexander Hentzsch</span>
+                        <br>
+                        <span class="w3-tiny">MIT License</span>
                     </p>
                 </div>
             </div>
@@ -79,6 +81,6 @@
     #copyright {
         font-size: 10px;
         color: #555;
-        line-height: 1.0;
+        line-height: 1.25em;
     }
 </style>

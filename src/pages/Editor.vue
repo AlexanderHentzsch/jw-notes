@@ -10,7 +10,7 @@
             </label>
         </div>
 
-        <div class="" style="margin: 24px 24px 100%; height: 100%">
+        <div class="" style="margin: 24px 24px 720px; height: 100%">
             <div>
                 <div v-for="(val, i) in notes" class="w3-row" :style="{fontSize: options.fontSize + 'px'}">
                     <div class="val-content w3-col s12" @click="edit(i)">
@@ -45,7 +45,7 @@
 
                 <div class="w3-container" id="container-textarea">
                         <textarea v-model="form.current.text"
-                                  @keyup.ctrl.enter="textareaToNotes()"
+                                  @keyup.ctrl.enter.prevent="textareaToNotes()"
                                   @keyup.esc.exact="abortEdit()"
                                   @keyup="setTextareaHeight()"
                                   class="note-inputs"

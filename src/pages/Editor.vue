@@ -92,7 +92,7 @@ export default {
     computed: {
         styleMarginBottom() {
             const h = window.innerHeight;
-            return {height: ((h < 300) ? 300 : h) + "px"};
+            return {height: ((h < 300) ? 300 : h - 200) + "px"};
         },
         jsonDB() {
             return window.jsonDB;

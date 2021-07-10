@@ -10,8 +10,8 @@
             </label>
         </div>
 
-        <div class="container-notes" style="margin: 24px 24px; height: 100%">
-            <div v-for="(val, i) in notes" class="w3-row" :style="{fontSize: options.fontSize + 'px'}">
+        <div class="container-notes w3-row" style="margin: 24px 24px; height: 100%">
+            <div v-for="(val, i) in notes" class="w3-col m12" :style="{fontSize: options.fontSize + 'px'}">
                 <div class="val-content w3-col s12" @click="edit(i)">
                     <span v-if="val[0] !== '@'">{{ getValue(val) }}</span>
                     <span v-if="val[0] === '@'">
@@ -119,7 +119,7 @@ export default {
         textareaWidth() {
             let DOM = document.querySelector("textarea");
             return (DOM === null) ? 300 : DOM.offsetWidth;
-        }
+        },
     },
     mounted: function () {
         let id = this.currentId;

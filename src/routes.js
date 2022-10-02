@@ -5,7 +5,6 @@ import OverviewPrograms from "./pages/OverviewPrograms";
 import OverviewProgramsNotes from "./pages/OverviewProgramsNotes";
 import Program from "./pages/Program";
 import Editor from "./pages/Editor";
-import Player from "@/pages/Player";
 
 export const routes = [
     {
@@ -48,15 +47,4 @@ export const routes = [
         component: Editor,
         name: "EditorProgram"
     } ,
-    {
-        path:'/player',
-        component: Player,
-        name: 'Player'
-    }
-    /*{
-        path: "*",
-        redirect: '/',
-        name: "404"
-    }
-    */
 ];

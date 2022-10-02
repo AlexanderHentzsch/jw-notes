@@ -7,14 +7,22 @@
             <div>
                 <p :style="{fontSize: selectedFontSize + 'px', textAlign: 'right'}">Schriftgröße:
                     {{ selectedFontSize }}px</p>
-                <input type="range" v-model="fontSize" @change="saveOptions()" min="0"
-                       :max="possibleTextHeight.length - 1" class="slider"
-                       id="fontSizeRange">
+                <input
+                    type="range" v-model="fontSize" @change="saveOptions()" min="0"
+                    :max="possibleTextHeight.length - 1" class="slider"
+                    id="fontSizeRange"
+                >
             </div>
 
             <div>
                 <h2>Download</h2>
                 <a class="w3-button w3-teal" :href="downloadJson" :download="fileNameDownload">Download JSON</a>
+                <h3 style="margin-top: 32px">Inhalt</h3>
+                <div style="margin-top: 12px">
+                    <textarea :value="json"
+                    style="width: 100%;
+                    height: 300px; background-color: black; color: #fff; font-family: 'Consolas', 'monospace'"></textarea>
+                </div>
                 <h2 style="margin-top: 64px">Lizenz</h2>
                 <p>
                     <a href="https://github.com/BillAlex-BASoftware/jw-notes/blob/master/LICENSE" target="_blank">
@@ -40,17 +48,17 @@
 </template>
 
 <script>
-import CompHeader from "../components/compHeader";
+import CompHeader from '../components/compHeader';
 
 export default {
-    name: "Options",
+    name: 'Options',
     components: {CompHeader},
     data() {
         return {
-            fontSize: 4,
-            localStorageKey: "options",
-            hrefGitHub: "https://github.com/BillAlex-BASoftware/jw-notes"
-        }
+            fontSize: 6,
+            localStorageKey: 'options',
+            hrefGitHub: 'https://github.com/BillAlex-BASoftware/jw-notes',
+        };
     },
     computed: {
         possibleTextHeight() {
@@ -62,10 +70,10 @@ export default {
         jsonDB() {
             return window.jsonDB;
         },
-        fileNameDownload(){
+        fileNameDownload() {
             const pad = function (v) {
-                return v.toString().padStart(2, "0");
-            }
+                return v.toString().padStart(2, '0');
+            };
             let d = new Date();
             let date = [
                 d.getFullYear(),
@@ -73,13 +81,16 @@ export default {
                 pad(d.getDate()),
                 pad(d.getHours()),
                 pad(d.getMinutes()),
-                pad(d.getSeconds())
-            ].join("");
-          return "jw-notes-" + date + ".json";
+                pad(d.getSeconds()),
+            ].join('');
+            return 'jw-notes-' + date + '.json';
         },
         downloadJson() {
             let db = localStorage.getItem('DB');
-            return "data:text/json;charset=utf-8," + encodeURIComponent(db);
+            return 'data:text/json;charset=utf-8,' + encodeURIComponent(db);
+        },
+        json(){
+            return localStorage.getItem('DB');
         }
     },
     mounted() {
@@ -88,7 +99,7 @@ export default {
     methods: {
         saveOptions() {
             let options = {
-                fontSize: this.selectedFontSize
+                fontSize: this.selectedFontSize,
             };
             let key = this.localStorageKey;
             localStorage.setItem(key, JSON.stringify(options));
@@ -102,8 +113,8 @@ export default {
             storage = JSON.parse(storage);
             this.fontSize = this.possibleTextHeight.indexOf(storage.fontSize);
         },
-    }
-}
+    },
+};
 </script>
 
 <style scoped>

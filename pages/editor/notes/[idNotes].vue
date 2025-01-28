@@ -44,7 +44,7 @@
         </div>
       </div>
 
-      <div class="w3-container" id="container-textarea">
+      <div class="w3-container" id="container-textarea" style="padding-bottom: 16px">
         <textarea
           v-model="form.current.text"
           ref="textarea"
@@ -56,9 +56,6 @@
           :style="{resize: 'none', height: textareaHeight + 'px'}"
         ></textarea>
       </div>
-    </div>
-
-    <div class="container-margin-bottom-safari" :style="styleMarginBottom" style="background: transparent">&nbsp;
     </div>
 
     <div
@@ -283,6 +280,10 @@ export default {
       this.saveInLocalStorage();
       this.$refs.textarea.focus();
       this.textareaHeight = parseInt(this.defaultTextareaHeight);
+      // Direkt zum Ende der Seite springen
+      this.$nextTick(()=>{
+        window.scrollTo(0, document.body.scrollHeight);
+      })
     },
     edit(index) {
       if (index < 0 || index >= this.notes.length || index === parseInt(this.$route.query.index))

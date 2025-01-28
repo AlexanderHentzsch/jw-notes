@@ -29,7 +29,7 @@
         <span class="w3-button w3-red" @click="deleteContent()">Löschen</span>
         <h2 style="margin-top: 64px">Lizenz</h2>
         <p>
-          <a href="https://github.com/BillAlex-BASoftware/jw-notes/blob/master/LICENSE" target="_blank">
+          <a href="https://github.com/AlexanderHentzsch/jw-notes/blob/master/LICENSE" target="_blank">
             JW Notes - The MIT License (MIT)
           </a>
         </p>

@@ -10,9 +10,3 @@ Die wesentlichen Unterschiede zu herkömmlichen Schreibprogrammen sind:
 - Nur markierte Texte anzeigen und exportieren
 
 *Hierfür muss das Gerät schwarze Bildpunkte als „nicht leuchten“ Interpretieren (Displaytyp: OLED).
-
-## Lizenz
-[_**JW Notes**_](https://github.com/AlexanderHentzsch/jw-notes) - [The MIT License (MIT)](https://github.com/AlexanderHentzsch/jw-notes/blob/master/LICENSE)
-
-## Third-party libraries
-[_**Vue.js**_](https://github.com/vuejs/vue) - [The MIT License (MIT)](https://github.com/vuejs/vue/blob/dev/LICENSE)

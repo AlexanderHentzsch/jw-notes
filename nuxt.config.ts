@@ -6,7 +6,10 @@ export default defineNuxtConfig({
     baseURL: '/jw-notes/',
     head: {
       title: 'JW Notes'
-    }
+    },
+  },
+  devServer: {
+    host: "0.0.0.0",
   },
   ssr: false
 })

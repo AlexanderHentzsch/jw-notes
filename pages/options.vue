@@ -15,6 +15,11 @@
       </div>
 
       <div>
+        <p>URL für den Bibeltext-Download</p>
+        <input v-model="urlBibleReferenceDownload" @change="saveOptions()" style="width: 100%; padding: 8px 4px; background-color: black; color: #fff; font-family: 'Consolas', 'monospace'">
+      </div>
+
+      <div>
         <h2>Download</h2>
         <a class="w3-button w3-teal" :href="downloadJson" :download="fileNameDownload">Download JSON</a>
         <h3 style="margin-top: 32px">Inhalt</h3>
@@ -63,6 +68,7 @@ export default {
       localStorageKey: 'options',
       hrefGitHub: 'https://github.com/AlexanderHentzsch/jw-notes',
       json: '', //dBContent
+      urlBibleReferenceDownload: '',
     };
   },
   computed: {
@@ -100,6 +106,7 @@ export default {
     saveOptions() {
       let options = {
         fontSize: this.selectedFontSize,
+        urlBibleReferenceDownload: this.urlBibleReferenceDownload,
       };
       let key = this.localStorageKey;
       localStorage.setItem(key, JSON.stringify(options));
@@ -112,6 +119,7 @@ export default {
 
       storage = JSON.parse(storage);
       this.fontSize = this.possibleTextHeight.indexOf(storage.fontSize);
+      this.urlBibleReferenceDownload = storage.urlBibleReferenceDownload;
     },
     saveContent() {
       localStorage.setItem('DB', this.json);

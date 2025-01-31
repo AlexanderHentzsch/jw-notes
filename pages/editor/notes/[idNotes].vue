@@ -13,9 +13,25 @@
     <div class="container-notes w3-row" style="margin: 24px 24px; height: 100%">
       <div v-for="(val, i) in notes" class="w3-col m12" :style="{fontSize: options.fontSize + 'px'}">
         <div class="val-content w3-col s12" @click="edit(i)">
-          <span v-if="val[0] !== '@'">{{ getValue(val) }}</span>
+          <div class="bibelReferenceContainer" v-if="typeof val === 'object'">
+            <div class="bibelReferenceChild">
+              <a :href="getLinkToWOL(val.val)" target="_blank">{{ getValue(val.val) }}</a>
+            </div>
+            <template v-for="c in val.content">
+              <div class="bibelReferenceChild bibelReferenceSource smallerFontSize">
+                {{ c.source }}
+              </div>
+              <div class="bibelReferenceChild smallerFontSize">
+                {{ c.content }}
+              </div>
+            </template>
+          </div>
+          <span v-if="typeof val === 'string' && val[0] !== '@'">{{ getValue(val) }}</span>
           <span v-if="val[0] === '@'">
             <a :href="getLinkToWOL(val)" target="_blank">{{ getValue(val) }}</a>
+            <button
+              @click="getBibleReference(val, i)" class="btnGetBibleRef" :disabled="isLoading"
+            > {{ isLoading ? 'Lädt...' : 'Laden' }}</button>
           </span>
         </div>
       </div>
@@ -85,10 +101,12 @@ export default {
       },
       options: {
         fontSize: 12,
+        urlBibleReferenceDownload: '',
       },
       textareaHeight: 32,
       defaultTextareaHeight: 32,
       jsonDB: [],
+      isLoading: false,
     };
   },
   computed: {
@@ -168,6 +186,7 @@ export default {
       if (options.hasOwnProperty('fontSize')) {
         this.options.fontSize = options.fontSize;
       }
+      this.options.urlBibleReferenceDownload = options.urlBibleReferenceDownload;
     },
     getDate(type, d = new Date()) {
       const padZero = (num) => {
@@ -226,7 +245,8 @@ export default {
 
       index = parseInt(index);
 
-      this.form.current.text = this.notes[index];
+      const note = this.notes[index];
+      this.form.current.text = (typeof note === 'object') ? '@' + note.val : note;
     },
     addEmoji(type) {
       let emoji = '';
@@ -254,36 +274,41 @@ export default {
       let val = this.form.current.text.trim();
       let id = this.$route.params.idNotes;
       let index = this.$route.query.index;
+      const note = this.notes[index];
 
-      let regex = /[0-9]:[0-9]/;
-      let isBible = val.match(regex) !== null;
-      let isSingnated = val[0] === '@';
+      console.log({index, type: typeof note, nVal: '@' + note?.val, val})
 
-      if (isBible && !isSingnated) {
-        val = '@' + val;
+      if (typeof note !== 'object' || '@' + note?.val !== val) {
+        let regex = /[0-9]:[0-9]/;
+        let isBible = val.match(regex) !== null;
+        let isSigned = val[0] === '@';
+
+        if (isBible && !isSigned) {
+          val = '@' + val;
+        }
+
+        if (val !== '') {
+          if (index !== undefined) {
+            index = parseInt(index);
+            this.notes[index] = val;
+          } else {
+            this.notes.push(val);
+          }
+        } else if(!!index) {
+          // löschen, wenn leer und in Bearbeitung
+          this.deleteIndex();
+        }
       }
 
       this.form.current.text = '';
-
-      if (val !== '') {
-        if (index !== undefined) {
-          index = parseInt(index);
-          this.notes[index] = val;
-          this.$router.push(`/editor/notes/${id}`);
-        } else {
-          this.notes.push(val);
-        }
-      } else {
-        this.deleteIndex();
-      }
-
       this.saveInLocalStorage();
       this.$refs.textarea.focus();
       this.textareaHeight = parseInt(this.defaultTextareaHeight);
+      this.$router.push(`/editor/notes/${id}`);
       // Direkt zum Ende der Seite springen
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         window.scrollTo(0, document.body.scrollHeight);
-      })
+      });
     },
     edit(index) {
       if (index < 0 || index >= this.notes.length || index === parseInt(this.$route.query.index))
@@ -322,6 +347,24 @@ export default {
     getLinkToWOL(searchStr) {
       searchStr = this.getValue(searchStr);
       return 'https://wol.jw.org/de/wol/l/r10/lp-x?q=' + encodeURIComponent(searchStr);
+    },
+    async getBibleReference(val, index) {
+      val = this.getValue(val);
+      try {
+        this.isLoading = true;
+        const response = await fetch(this.options.urlBibleReferenceDownload + '?bible_reference=' + encodeURIComponent(val));
+        const json = {};
+        json.val = val;
+        json.comment = '';
+        //json.content = [{source: '', content: ''}];
+        json.content = await response.json();
+        this.notes[index] = json;
+        this.saveInLocalStorage();
+      } catch (e) {
+        alert('Beim Laden trat ein Fehler aus.');
+      } finally {
+        this.isLoading = false;
+      }
     },
     setTextareaHeight() {
       let h = this.$refs['textarea-height'].offsetHeight;
@@ -366,5 +409,34 @@ export default {
   display: inline;
   overflow-x: auto;
   max-width: 100%;
+}
+
+.bibelReferenceContainer {
+  border: #37474F 1px solid;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.bibelReferenceSource {
+  border-top: #37474F 1px solid;
+  border-bottom: #37474F 1px solid;
+  background-color: #37474F;
+}
+
+.bibelReferenceChild {
+  padding: 4px 8px;
+}
+
+.smallerFontSize {
+  font-size: 0.8em;
+}
+
+.btnGetBibleRef {
+  margin-left: 8px;
+  font-size: 0.7em;
+}
+
+.btnGetBibleRef:disabled {
+  color: #000;
 }
 </style>

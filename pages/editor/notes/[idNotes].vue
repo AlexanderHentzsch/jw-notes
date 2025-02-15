@@ -10,7 +10,7 @@
       </label>
     </div>
 
-    <div class="container-notes w3-row" style="margin: 24px 24px; height: 100%">
+    <div class="container-notes w3-row" style="margin: 24px; margin-bottom: 0">
       <div v-for="(val, i) in notes" class="w3-col m12" :style="{fontSize: options.fontSize + 'px'}">
         <div class="val-content w3-col s12" @click="edit(i)">
           <div class="bibelReferenceContainer" v-if="typeof val === 'object'">
@@ -61,33 +61,28 @@
       </div>
 
       <div class="w3-container" id="container-textarea" style="padding-bottom: 16px">
-        <textarea
-          v-model="form.current.text"
+        <NodeTextInput
           ref="textarea"
           @keyup.ctrl.enter.prevent="textareaToNotes()"
           @keyup.91.enter.exact.prevent="textareaToNotes()"
           @keyup.esc.exact="abortEdit()"
-          @keyup="setTextareaHeight()"
-          class="note-inputs"
-          :style="{resize: 'none', height: textareaHeight + 'px'}"
-        ></textarea>
+        />
       </div>
-    </div>
-
-    <div
-      id="container-textarea-height"
-      ref="textarea-height"
-      class="w3-container note-inputs"
-      :style="{position: 'fixed', visibility: 'hidden', width: textareaWidth + 'px'}"
-    >
-      {{ form.current.text }}
     </div>
   </div>
 </template>
 
 <script>
+import {store} from '~/stores/default.js';
 
 export default {
+  setup() {
+    const textarea = useTemplateRef('textarea');
+    function focusTextarea() {
+      textarea.value.focus();
+    }
+    return {store, focusTextarea};
+  },
   name: 'Editor',
   data() {
     return {
@@ -134,10 +129,12 @@ export default {
       return 50 * cBtn;
     },
     textareaWidth() {
+      /*
       this.$nextTick(() => {
         let DOM = this.$refs.textarea;
         return (DOM === null) ? 300 : DOM.offsetWidth;
       });
+      */
     },
   },
   mounted() {
@@ -153,7 +150,8 @@ export default {
     } else if (this.jsonDB[id] === undefined) {
       return this.$router.push('/overview/notes');
     } else {
-      this.$refs.textarea.focus();
+      //this.$refs.textarea.focus();
+      this.focusTextarea();
     }
 
     this.setDefaults();
@@ -246,7 +244,7 @@ export default {
       index = parseInt(index);
 
       const note = this.notes[index];
-      this.form.current.text = (typeof note === 'object') ? '@' + note.val : note;
+      store.currentNode = (typeof note === 'object') ? '@' + note.val : note;
     },
     addEmoji(type) {
       let emoji = '';
@@ -265,18 +263,19 @@ export default {
           emoji = '';
       }
 
-      this.form.current.text = emoji + ' ' + this.form.current.text;
-      this.$refs.textarea.focus();
+      store.currentNode = emoji + ' ' + store.currentNode;
+      //this.$refs.textarea.focus();
+      this.focusTextarea();
     },
     textareaToNotes() {
       this.date = this.getDate('unix');
 
-      let val = this.form.current.text.trim();
+      let val = store.currentNode.trim();
       let id = this.$route.params.idNotes;
       let index = this.$route.query.index;
       const note = this.notes[index];
 
-      console.log({index, type: typeof note, nVal: '@' + note?.val, val})
+      //console.log({index, type: typeof note, nVal: '@' + note?.val, val});
 
       if (typeof note !== 'object' || '@' + note?.val !== val) {
         let regex = /[0-9]:[0-9]/;
@@ -294,16 +293,17 @@ export default {
           } else {
             this.notes.push(val);
           }
-        } else if(!!index) {
+        } else if (!!index) {
           // löschen, wenn leer und in Bearbeitung
           this.deleteIndex();
         }
       }
 
-      this.form.current.text = '';
+      store.currentNode = '';
       this.saveInLocalStorage();
-      this.$refs.textarea.focus();
-      this.textareaHeight = parseInt(this.defaultTextareaHeight);
+      //this.$refs.textarea.focus();
+      this.focusTextarea();
+      //this.textareaHeight = parseInt(this.defaultTextareaHeight);
       this.$router.push(`/editor/notes/${id}`);
       // Direkt zum Ende der Seite springen
       this.$nextTick(() => {
@@ -317,17 +317,19 @@ export default {
       let id = this.$route.params.idNotes;
       this.$router.push(`/editor/notes/${id}?index=${index}`);
 
-      this.$refs.textarea.focus();
+      //this.$refs.textarea.focus();
+      this.focusTextarea();
       this.textareaHeight = parseInt(this.defaultTextareaHeight);
     },
     abortEdit() {
       let id = this.$route.params.idNotes;
       let index = this.$route.query.index;
 
-      this.form.current.text = '';
+      store.currentNode = '';
       this.textareaHeight = parseInt(this.defaultTextareaHeight);
       if (index !== undefined)
         this.$router.push(`/editor/notes/${id}`);
+      this.focusTextarea();
     },
     deleteIndex() {
       let index = parseInt(this.$route.query.index);

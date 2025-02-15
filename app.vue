@@ -1,6 +1,8 @@
 <template>
   <div style="height: 100vh">
-    <NuxtPage/>
+    <v-app>
+      <NuxtPage/>
+    </v-app>
   </div>
 </template>
 <script>

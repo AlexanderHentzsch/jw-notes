@@ -16,7 +16,10 @@
 
       <div>
         <p>URL für den Bibeltext-Download</p>
-        <input v-model="urlBibleReferenceDownload" @change="saveOptions()" style="width: 100%; padding: 8px 4px; background-color: black; color: #fff; font-family: 'Consolas', 'monospace'">
+        <input
+          v-model="urlBibleReferenceDownload" @change="saveOptions()"
+          style="width: 100%; padding: 8px 4px; background-color: black; color: #fff; font-family: 'Consolas', 'monospace'"
+        >
       </div>
 
       <div>
@@ -39,27 +42,27 @@
           </a>
         </p>
 
-        <h2 style="margin-top: 48px">Third-party libraries</h2>
-        <p>
-          <a href="https://github.com/vuejs/vue/blob/dev/LICENSE" target="_blank">
-            Vue.js - The MIT License (MIT)
+        <div style="margin-top: 48px">
+          <p style="margin-bottom: 4px">v{{ packageJson.version }}</p>
+          <a :href="hrefGitHub" id="a-github" target="_blank">
+            Projekt auf <span id="span-github">GitHub <i class="fab fa-github"></i></span>
           </a>
-        </p>
+        </div>
       </div>
     </div>
 
-    <div id="container-github">
-      <a :href="hrefGitHub" id="a-github" target="_blank">
-        Projekt auf <span id="span-github">GitHub <i class="fab fa-github"></i></span>
-      </a>
-    </div>
+
   </div>
 </template>
 
 <script>
 import CompHeader from '../components/compHeader';
+import packageJson from '/package.json';
 
 export default {
+  setup() {
+    return {packageJson};
+  },
   name: 'Options',
   components: {CompHeader},
   data() {
@@ -100,7 +103,7 @@ export default {
   },
   mounted() {
     this.loadOptions();
-    this.json = localStorage.getItem('DB')
+    this.json = localStorage.getItem('DB');
   },
   methods: {
     saveOptions() {
@@ -125,7 +128,7 @@ export default {
       localStorage.setItem('DB', this.json);
     },
     deleteContent() {
-      if(confirm('Willst du wirklich alles löschen?')){
+      if (confirm('Willst du wirklich alles löschen?')) {
         localStorage.removeItem('DB');
         this.json = '';
       }

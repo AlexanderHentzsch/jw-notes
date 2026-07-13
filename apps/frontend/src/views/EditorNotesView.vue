@@ -2,7 +2,7 @@
   <div id="Editor" class="container-content fontRaleway">
     <CompHeader />
 
-    <div class="w3-container container-theme">
+    <div class="w3-container">
       <input id="title" ref="title" class="font-note-title note-inputs" v-model="title">
       <label id="label-title" for="title">
         <template v-if="title === ''">Titel</template>
@@ -18,9 +18,9 @@
       @update:note="onNoteUpdate"
     />
 
-    <div class="container-notes w3-row" style="margin: 24px; margin-bottom: 0">
+    <div class="w3-row" style="margin: 24px; margin-bottom: 0">
       <div v-for="(val, i) in notes" :key="i" class="w3-col m12" :style="{fontSize: options.fontSize + 'px'}">
-        <div class="val-content w3-col s12" @click="edit(i)">
+        <div class="w3-col s12" @click="edit(i)">
           <div class="bibelReferenceContainer" v-if="typeof val === 'object'">
             <div class="bibelReferenceChild">
               <a :href="getLinkToWOL(val.val)" target="_blank">{{ getValue(val.val) }}</a>
@@ -45,7 +45,7 @@
       </div>
     </div>
 
-    <div class="container-input">
+    <div>
       <div id="toolbox" class="w3-row">
         <div
           class="w3-left w3-rest container-special-btn"
@@ -114,17 +114,11 @@ export default {
         urlBibleReferenceDownload: '',
         urlTranscriptionService: '',
       },
-      textareaHeight: 32,
-      defaultTextareaHeight: 32,
       isLoading: false,
       isReady: false,
     };
   },
   computed: {
-    styleMarginBottom() {
-      const h = window.innerHeight;
-      return {height: ((h < 300) ? 300 : h - 200) + 'px'};
-    },
     noteId() {
       return this.$route.params.id;
     },
@@ -333,12 +327,10 @@ export default {
 
       store.editingLineIndex = index;
       this.focusTextarea();
-      this.textareaHeight = parseInt(this.defaultTextareaHeight);
     },
     abortEdit() {
       store.currentNode = '';
       store.editingLineIndex = null;
-      this.textareaHeight = parseInt(this.defaultTextareaHeight);
       this.focusTextarea();
     },
     async deleteIndex() {

@@ -1,5 +1,5 @@
 <template>
-  <div class="audio-recorder w3-container container-theme">
+  <div class="audio-recorder w3-container">
     <div class="audio-bar">
       <button
         type="button"

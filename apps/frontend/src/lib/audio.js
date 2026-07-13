@@ -44,10 +44,6 @@ export class NoteAudioRecorder {
     return this.mediaRecorder?.state === 'recording';
   }
 
-  get isPaused() {
-    return this.mediaRecorder?.state === 'paused';
-  }
-
   async start() {
     if (!isRecordingSupported()) {
       throw new Error('Audioaufnahme wird in diesem Browser nicht unterstützt.');
@@ -63,20 +59,6 @@ export class NoteAudioRecorder {
       }
     };
     this.mediaRecorder.start(TIMESLICE_MS);
-    this.sessionStartedAt = Date.now();
-    this._startTimer();
-  }
-
-  pause() {
-    if (!this.isRecording) return;
-    this.mediaRecorder.pause();
-    this._finalizeSessionElapsed();
-    this._stopTimer();
-  }
-
-  resume() {
-    if (!this.isPaused) return;
-    this.mediaRecorder.resume();
     this.sessionStartedAt = Date.now();
     this._startTimer();
   }
@@ -176,12 +158,8 @@ export class NoteAudioRecorder {
     }
   }
 
-  getBlob() {
-    return this.savedBlob;
-  }
-
   async getCombinedBlob() {
-    if (!this.isRecording && !this.isPaused) {
+    if (!this.isRecording) {
       return this.savedBlob;
     }
 

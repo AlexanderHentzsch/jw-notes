@@ -50,7 +50,7 @@
     font-family: 'Roboto Condensed', sans-serif;
 }
 
-.fontAmiri, .font-note-title {
+.font-note-title {
     font-family: 'Amiri', serif;
 }
 
@@ -85,11 +85,6 @@ html, body, #app {
 }
 
 /* container */
-#container-player {
-    position: fixed;
-    top: -200px;
-}
-
 .container-content {
     margin-top: 55px;
 }

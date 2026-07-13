@@ -5,6 +5,19 @@
       <h1>Optionen</h1>
 
       <div>
+        <p>Design</p>
+        <label class="theme-option">
+          <input type="radio" v-model="theme" value="oled" @change="onThemeChange"> OLED
+        </label>
+        <label class="theme-option">
+          <input type="radio" v-model="theme" value="dark" @change="onThemeChange"> Dunkel
+        </label>
+        <label class="theme-option">
+          <input type="radio" v-model="theme" value="light" @change="onThemeChange"> Hell
+        </label>
+      </div>
+
+      <div>
         <p :style="{fontSize: selectedFontSize + 'px', textAlign: 'right'}">Schriftgröße:
           {{ selectedFontSize }}px</p>
         <input
@@ -18,7 +31,7 @@
         <p>URL für den Bibeltext-Download</p>
         <input
           v-model="urlBibleReferenceDownload" @change="saveOptions()"
-          style="width: 100%; padding: 8px 4px; background-color: black; color: #fff; font-family: 'Consolas', 'monospace'"
+          class="options-input"
         >
       </div>
 
@@ -29,8 +42,7 @@
         <div style="margin-top: 12px">
           <textarea
             v-model="json"
-            style="width: 100%;
-          height: 300px; background-color: black; color: #fff; font-family: 'Consolas', 'monospace'"
+            class="options-textarea"
           ></textarea>
         </div>
         <span class="w3-button w3-teal" @click="saveContent()">Speichern</span>
@@ -57,6 +69,7 @@
 import CompHeader from '@/components/CompHeader.vue';
 import packageJson from '../../package.json';
 import {clearNotes, getNotes, getOptions, importNotes, saveOptions as saveOptionsToStorage} from '@/lib/storage.js';
+import {applyTheme, DEFAULT_THEME} from '@/lib/theme.js';
 
 export default {
   setup() {
@@ -69,6 +82,7 @@ export default {
       fontSize: 6,
       hrefGitHub: 'https://github.com/AlexanderHentzsch/jw-notes',
       json: '',
+      theme: DEFAULT_THEME,
       urlBibleReferenceDownload: '',
     };
   },
@@ -108,7 +122,12 @@ export default {
       await saveOptionsToStorage({
         fontSize: this.selectedFontSize,
         urlBibleReferenceDownload: this.urlBibleReferenceDownload,
+        theme: this.theme,
       });
+    },
+    async onThemeChange() {
+      applyTheme(this.theme);
+      await this.saveOptions();
     },
     async loadOptions() {
       const storage = await getOptions();
@@ -118,6 +137,9 @@ export default {
       }
       if (storage.urlBibleReferenceDownload !== undefined) {
         this.urlBibleReferenceDownload = storage.urlBibleReferenceDownload;
+      }
+      if (storage.theme !== undefined) {
+        this.theme = storage.theme;
       }
     },
     async saveContent() {
@@ -141,6 +163,12 @@ export default {
 <style scoped>
 h1 {
   font-size: 26px;
+}
+
+.theme-option {
+  display: inline-block;
+  margin-right: 16px;
+  cursor: pointer;
 }
 
 .slider {

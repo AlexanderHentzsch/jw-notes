@@ -371,7 +371,7 @@ export default {
   background-color: inherit;
   color: inherit;
   border: none;
-  border-bottom: 1px solid rgb(97, 97, 97);
+  border-bottom: 1px solid var(--color-border);
   display: block;
   width: 100%;
   margin: 0;
@@ -392,15 +392,15 @@ export default {
 }
 
 .bibelReferenceContainer {
-  border: #37474F 1px solid;
+  border: var(--color-surface) 1px solid;
   border-radius: 4px;
   margin-top: 4px;
 }
 
 .bibelReferenceSource {
-  border-top: #37474F 1px solid;
-  border-bottom: #37474F 1px solid;
-  background-color: #37474F;
+  border-top: var(--color-surface) 1px solid;
+  border-bottom: var(--color-surface) 1px solid;
+  background-color: var(--color-surface);
 }
 
 .bibelReferenceChild {
@@ -417,6 +417,6 @@ export default {
 }
 
 .btnGetBibleRef:disabled {
-  color: #000;
+  color: var(--color-disabled-text);
 }
 </style>

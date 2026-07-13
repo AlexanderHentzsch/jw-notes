@@ -39,7 +39,7 @@ defineExpose({focus});
   resize: none;
   background-color: transparent;
   color: inherit;
-  border: 1px solid #616161;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   padding: 8px;
   font-family: inherit;

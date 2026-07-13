@@ -1,6 +1,50 @@
 @import url("https://use.fontawesome.com/releases/v5.6.3/css/all.css");
 @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Raleway|Amiri&display=swap');
 
+/* theme variables */
+:root,
+[data-theme="oled"] {
+    --color-bg: #000000;
+    --color-text: #D6DADF;
+    --color-text-muted: #555555;
+    --color-accent: #60AC9E;
+    --color-accent-text: #ffffff;
+    --color-border: #616161;
+    --color-surface: #37474F;
+    --color-header-bg: #000000;
+    --color-input-bg: #000000;
+    --color-router-inactive: #000000;
+    --color-disabled-text: #000000;
+}
+
+[data-theme="dark"] {
+    --color-bg: #121212;
+    --color-text: #D6DADF;
+    --color-text-muted: #888888;
+    --color-accent: #60AC9E;
+    --color-accent-text: #ffffff;
+    --color-border: #616161;
+    --color-surface: #37474F;
+    --color-header-bg: #121212;
+    --color-input-bg: #121212;
+    --color-router-inactive: #121212;
+    --color-disabled-text: #000000;
+}
+
+[data-theme="light"] {
+    --color-bg: #f5f5f5;
+    --color-text: #1a1a1a;
+    --color-text-muted: #666666;
+    --color-accent: #60AC9E;
+    --color-accent-text: #ffffff;
+    --color-border: #cccccc;
+    --color-surface: #e0e0e0;
+    --color-header-bg: #f5f5f5;
+    --color-input-bg: #ffffff;
+    --color-router-inactive: #f5f5f5;
+    --color-disabled-text: #999999;
+}
+
 /* fonts */
 .fontRobotoCondensed {
     font-family: 'Roboto Condensed', sans-serif;
@@ -17,27 +61,27 @@
 /* defaults */
 html, body, #app {
     height: 100%;
-    color: #D6DADF;
-    background-color: #000;
+    color: var(--color-text);
+    background-color: var(--color-bg);
 }
 
 /* theme */
 .theme-background {
-    color: #fff;
-    background-color: #60AC9E;
+    color: var(--color-accent-text);
+    background-color: var(--color-accent);
 }
 
 .theme-color {
-    color: #60AC9E;
+    color: var(--color-accent);
 }
 
 /* router */
 .router-link {
-    border-bottom: 3px solid #000;
+    border-bottom: 3px solid var(--color-router-inactive);
 }
 
 .router-link-active {
-    border-bottom: 3px solid #60AC9E;
+    border-bottom: 3px solid var(--color-accent);
 }
 
 /* container */
@@ -48,4 +92,24 @@ html, body, #app {
 
 .container-content {
     margin-top: 55px;
+}
+
+.options-input {
+    width: 100%;
+    padding: 8px 4px;
+    background-color: var(--color-input-bg);
+    color: var(--color-text);
+    font-family: 'Consolas', 'monospace';
+    border: 1px solid var(--color-border);
+    box-sizing: border-box;
+}
+
+.options-textarea {
+    width: 100%;
+    height: 300px;
+    background-color: var(--color-input-bg);
+    color: var(--color-text);
+    font-family: 'Consolas', 'monospace';
+    border: 1px solid var(--color-border);
+    box-sizing: border-box;
 }

@@ -72,7 +72,7 @@ export default {
 
 #copyright {
   font-size: 10px;
-  color: #555;
+  color: var(--color-text-muted);
   line-height: 1.25em;
 }
 </style>

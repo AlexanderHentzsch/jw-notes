@@ -2,7 +2,7 @@
   <div id="header">
     <div class="w3-row theme-color" style="height: 100%;">
       <div class="container-btn w3-col w3-left">
-        <button @click="goBack(-1)" class="w3-btn w3-hover-none">
+        <button @click="goBack()" class="w3-btn w3-hover-none">
           <i class='fas fa-angle-left'></i>
         </button>
       </div>
@@ -16,48 +16,34 @@
           JW Notes
         </button>
       </div>
-
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "CompHeader",
-  computed: {
-    domApp() {
-      return document.querySelector("#app");
-    }
-  },
+  name: 'CompHeader',
   methods: {
     goBack() {
       const cROUTE = this.$route.name;
       let nROUTE;
       switch (cROUTE) {
-        case "Options":
+        case 'Options':
           return this.$router.go(-1);
-        case "OverviewNotes":
-        case "OverviewPrograms":
-          nROUTE = "/";
+        case 'OverviewNotes':
+          nROUTE = '/';
           break;
-        case "Program":
-          nROUTE = `/overview/programs/${this.$route.params.idProgram}`;
-          break;
-        case "EditorNotes":
-          nROUTE = "/overview/notes";
-          break;
-        case "OverviewProgramsNotes":
-        case "EditorProgram":
-          nROUTE = "/overview/programs";
+        case 'EditorNotes':
+          nROUTE = '/overview/notes';
           break;
         default:
-          nROUTE = "/overview/notes"
+          nROUTE = '/overview/notes';
       }
 
       this.$router.push(nROUTE);
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>

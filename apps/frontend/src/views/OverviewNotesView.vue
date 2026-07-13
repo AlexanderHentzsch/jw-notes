@@ -1,7 +1,7 @@
 <template>
   <div class="container-content">
-    <comp-header></comp-header>
-    <comp-tabs-overview></comp-tabs-overview>
+    <CompHeader />
+    <CompTabsOverview />
 
     <div class="w3-content w3-container">
       <div class="w3-center" style="padding-top: 24px">
@@ -10,6 +10,7 @@
       <div>
         <router-link
           v-for="(el, i) in jsonDBLocalReverse"
+          :key="i"
           :to="'/editor/notes/' + getReversedPos(i)"
           class="font-note-title w3-large w3-btn w3-hover-none w3-left-align"
           style="display: block"
@@ -18,14 +19,16 @@
         </router-link>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
+import CompHeader from '@/components/CompHeader.vue';
+import CompTabsOverview from '@/components/CompTabsOverview.vue';
 
 export default {
-  name: 'Overview_Notes',
+  name: 'OverviewNotes',
+  components: {CompHeader, CompTabsOverview},
   data() {
     return {
       jsonDBLocal: [],
@@ -56,13 +59,10 @@ export default {
       const storage = JSON.parse(localStorage.getItem('DB'));
 
       if (storage !== undefined && storage !== null) {
-        jsonDB = storage;
-        this.jsonDBLocal = jsonDB;
+        window.jsonDB = storage;
+        this.jsonDBLocal = window.jsonDB;
       }
     },
   },
 };
 </script>
-
-<style>
-</style>

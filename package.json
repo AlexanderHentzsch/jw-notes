@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "npm run dev --workspace=@jw-notes/frontend",
     "build": "npm run build --workspace=@jw-notes/frontend",
-    "generate": "npm run generate --workspace=@jw-notes/frontend",
     "preview": "npm run preview --workspace=@jw-notes/frontend"
   }
 }

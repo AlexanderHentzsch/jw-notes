@@ -16,11 +16,11 @@ jobs:
           node-version: "20"
           cache: npm
       - run: npm ci
-      - run: npm run build --workspace=@jw-notes/frontend -- --preset github_pages
+      - run: npm run build --workspace=@jw-notes/frontend
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./apps/frontend/.output/public
+          path: ./apps/frontend/dist
   deploy:
     needs: build
     permissions:

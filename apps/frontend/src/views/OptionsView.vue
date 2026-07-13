@@ -1,6 +1,6 @@
 <template>
   <div class="container-content">
-    <comp-header></comp-header>
+    <CompHeader />
     <div class="w3-content w3-container">
       <h1>Optionen</h1>
 
@@ -50,14 +50,12 @@
         </div>
       </div>
     </div>
-
-
   </div>
 </template>
 
 <script>
-import CompHeader from '../components/compHeader';
-import packageJson from '/package.json';
+import CompHeader from '@/components/CompHeader.vue';
+import packageJson from '../../package.json';
 
 export default {
   setup() {
@@ -70,7 +68,7 @@ export default {
       fontSize: 6,
       localStorageKey: 'options',
       hrefGitHub: 'https://github.com/AlexanderHentzsch/jw-notes',
-      json: '', //dBContent
+      json: '',
       urlBibleReferenceDownload: '',
     };
   },

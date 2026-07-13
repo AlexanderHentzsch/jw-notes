@@ -1,14 +1,10 @@
-<template>
-  <div style="height: 100vh">
-    <v-app>
-      <NuxtPage/>
-    </v-app>
-  </div>
-</template>
-<script>
-import '~/assets/w3.css';
-import '~/assets/default.css';
-import '~/assets/cursor.css';
+import {createApp} from 'vue';
+import App from './App.vue';
+import router from './router';
+
+import './assets/w3.css';
+import './assets/default.css';
+import './assets/cursor.css';
 
 window.isMobile = function () {
   let check = false;
@@ -18,14 +14,6 @@ window.isMobile = function () {
   return check;
 };
 
-// eslint-disable-next-line no-unused-vars
-let jsonDB_structure = [
-  {
-    title: '',
-    date: '',
-    notes: [],
-  },
-];
-
 window.jsonDB = [];
-</script>
+
+createApp(App).use(router).mount('#app');

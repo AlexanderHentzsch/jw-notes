@@ -1,6 +1,6 @@
 <template>
   <div id="Editor" class="container-content fontRaleway">
-    <comp-header></comp-header>
+    <CompHeader />
 
     <div class="w3-container container-theme">
       <input id="title" ref="title" class="font-note-title note-inputs" v-model="title">
@@ -11,13 +11,13 @@
     </div>
 
     <div class="container-notes w3-row" style="margin: 24px; margin-bottom: 0">
-      <div v-for="(val, i) in notes" class="w3-col m12" :style="{fontSize: options.fontSize + 'px'}">
+      <div v-for="(val, i) in notes" :key="i" class="w3-col m12" :style="{fontSize: options.fontSize + 'px'}">
         <div class="val-content w3-col s12" @click="edit(i)">
           <div class="bibelReferenceContainer" v-if="typeof val === 'object'">
             <div class="bibelReferenceChild">
               <a :href="getLinkToWOL(val.val)" target="_blank">{{ getValue(val.val) }}</a>
             </div>
-            <template v-for="c in val.content">
+            <template v-for="(c, ci) in val.content" :key="ci">
               <div class="bibelReferenceChild bibelReferenceSource smallerFontSize">
                 {{ c.source }}
               </div>
@@ -27,10 +27,10 @@
             </template>
           </div>
           <span v-if="typeof val === 'string' && val[0] !== '@'">{{ getValue(val) }}</span>
-          <span v-if="val[0] === '@'">
+          <span v-if="typeof val === 'string' && val[0] === '@'">
             <a :href="getLinkToWOL(val)" target="_blank">{{ getValue(val) }}</a>
             <button
-              @click="getBibleReference(val, i)" class="btnGetBibleRef" :disabled="isLoading"
+              @click.stop="getBibleReference(val, i)" class="btnGetBibleRef" :disabled="isLoading"
             > {{ isLoading ? 'Lädt...' : 'Laden' }}</button>
           </span>
         </div>
@@ -61,7 +61,7 @@
       </div>
 
       <div class="w3-container" id="container-textarea" style="padding-bottom: 16px">
-        <NodeTextInput
+        <NoteTextarea
           ref="textarea"
           @keyup.ctrl.enter.prevent="textareaToNotes()"
           @keyup.91.enter.exact.prevent="textareaToNotes()"
@@ -73,17 +73,21 @@
 </template>
 
 <script>
-import {store} from '~/stores/default.js';
+import {useTemplateRef} from 'vue';
+import {store} from '@/stores/default.js';
+import CompHeader from '@/components/CompHeader.vue';
+import NoteTextarea from '@/components/NoteTextarea.vue';
 
 export default {
+  components: {CompHeader, NoteTextarea},
   setup() {
     const textarea = useTemplateRef('textarea');
     function focusTextarea() {
-      textarea.value.focus();
+      textarea.value?.focus();
     }
     return {store, focusTextarea};
   },
-  name: 'Editor',
+  name: 'EditorNotes',
   data() {
     return {
       title: '',
@@ -117,7 +121,7 @@ export default {
       return !(this.$route.query.index === undefined);
     },
     documentWidth() {
-      return document.getElementsByTagName('html')[0].clientWidth - (8 * 2); /* padding */
+      return document.getElementsByTagName('html')[0].clientWidth - (8 * 2);
     },
     widthContainerSpecialBtn() {
       let cBtn = (this.routerHasIndex) ? 3 : 1;
@@ -128,21 +132,13 @@ export default {
       let cBtn = (this.routerHasIndex) ? 3 : 1;
       return 50 * cBtn;
     },
-    textareaWidth() {
-      /*
-      this.$nextTick(() => {
-        let DOM = this.$refs.textarea;
-        return (DOM === null) ? 300 : DOM.offsetWidth;
-      });
-      */
-    },
   },
   mounted() {
     const saveData = localStorage.getItem('DB');
     if (saveData)
       this.jsonDB = JSON.parse(saveData);
 
-    let id = this.currentId; // currentIndex;
+    let id = this.currentId;
 
     if (id === 'new') {
       this.createNewNotesArray();
@@ -150,7 +146,6 @@ export default {
     } else if (this.jsonDB[id] === undefined) {
       return this.$router.push('/overview/notes');
     } else {
-      //this.$refs.textarea.focus();
       this.focusTextarea();
     }
 
@@ -264,7 +259,6 @@ export default {
       }
 
       store.currentNode = emoji + ' ' + store.currentNode;
-      //this.$refs.textarea.focus();
       this.focusTextarea();
     },
     textareaToNotes() {
@@ -274,8 +268,6 @@ export default {
       let id = this.$route.params.idNotes;
       let index = this.$route.query.index;
       const note = this.notes[index];
-
-      //console.log({index, type: typeof note, nVal: '@' + note?.val, val});
 
       if (typeof note !== 'object' || '@' + note?.val !== val) {
         let regex = /[0-9]:[0-9]/;
@@ -294,18 +286,14 @@ export default {
             this.notes.push(val);
           }
         } else if (!!index) {
-          // löschen, wenn leer und in Bearbeitung
           this.deleteIndex();
         }
       }
 
       store.currentNode = '';
       this.saveInLocalStorage();
-      //this.$refs.textarea.focus();
       this.focusTextarea();
-      //this.textareaHeight = parseInt(this.defaultTextareaHeight);
       this.$router.push(`/editor/notes/${id}`);
-      // Direkt zum Ende der Seite springen
       this.$nextTick(() => {
         window.scrollTo(0, document.body.scrollHeight);
       });
@@ -317,7 +305,6 @@ export default {
       let id = this.$route.params.idNotes;
       this.$router.push(`/editor/notes/${id}?index=${index}`);
 
-      //this.$refs.textarea.focus();
       this.focusTextarea();
       this.textareaHeight = parseInt(this.defaultTextareaHeight);
     },
@@ -358,7 +345,6 @@ export default {
         const json = {};
         json.val = val;
         json.comment = '';
-        //json.content = [{source: '', content: ''}];
         json.content = await response.json();
         this.notes[index] = json;
         this.saveInLocalStorage();
@@ -366,13 +352,6 @@ export default {
         alert('Beim Laden trat ein Fehler aus.');
       } finally {
         this.isLoading = false;
-      }
-    },
-    setTextareaHeight() {
-      let h = this.$refs['textarea-height'].offsetHeight;
-
-      if (h > this.defaultTextareaHeight) {
-        this.textareaHeight = h;
       }
     },
   },

@@ -6,10 +6,6 @@
 
 <script>
 export default {
-  name: "compTabsOverview"
-}
+  name: 'CompTabsOverview',
+};
 </script>
-
-<style scoped>
-
-</style>

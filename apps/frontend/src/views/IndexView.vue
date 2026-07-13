@@ -27,23 +27,22 @@
           </p>
         </div>
       </div>
-      <!-- END w3-display-container -->
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Main",
+  name: 'Main',
   methods: {
     clickDisplay() {
       this.goToOverview();
     },
     goToOverview() {
       this.$router.push('/overview/notes/');
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>

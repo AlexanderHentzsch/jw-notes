@@ -232,8 +232,8 @@ Reihenfolge empfohlen: Accordion → Drag & Drop → Emojis → Bibel-Erweiterun
 
 ### Phase 6 — Backend & Sync
 
+- ~~`apps/server` (NestJS, Transkription via OpenRouter)~~ **erledigt**
 - `packages/shared` mit API-Typen
-- `apps/server` (Sprache frei wählbar)
 - Sync-Stub durch echte Implementierung ersetzen
 - Sync-UI in Optionen
 

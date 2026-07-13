@@ -12,13 +12,22 @@ function toPlain(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function defaultAudioFields() {
+  return {
+    audioId: null,
+    audioDuration: 0,
+    lastProcessedSecond: 0,
+    transcriptions: [],
+  };
+}
+
 export function migrateLegacyNote(note) {
   return {
     id: crypto.randomUUID(),
     title: note.title ?? '',
     date: note.date ?? Date.now(),
     notes: Array.isArray(note.notes) ? note.notes : [],
-    audioId: null,
+    ...defaultAudioFields(),
     updatedAt: new Date().toISOString(),
     revision: 1,
     syncStatus: 'synced',
@@ -32,11 +41,33 @@ function ensureNoteFields(note) {
   return {
     ...note,
     audioId: note.audioId ?? null,
+    audioDuration: note.audioDuration ?? 0,
+    lastProcessedSecond: note.lastProcessedSecond ?? 0,
+    transcriptions: Array.isArray(note.transcriptions) ? note.transcriptions : [],
     updatedAt: note.updatedAt ?? new Date().toISOString(),
     revision: note.revision ?? 1,
     syncStatus: note.syncStatus ?? 'synced',
     notes: Array.isArray(note.notes) ? note.notes : [],
   };
+}
+
+function audioKey(audioId) {
+  return `audio:${audioId}`;
+}
+
+export async function saveAudioBlob(audioId, blob) {
+  if (!audioId || !blob) return;
+  await lf.setItem(audioKey(audioId), blob);
+}
+
+export async function getAudioBlob(audioId) {
+  if (!audioId) return null;
+  return lf.getItem(audioKey(audioId));
+}
+
+export async function deleteAudioBlob(audioId) {
+  if (!audioId) return;
+  await lf.removeItem(audioKey(audioId));
 }
 
 function touchNote(note) {

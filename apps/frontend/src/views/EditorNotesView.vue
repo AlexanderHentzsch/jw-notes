@@ -10,6 +10,14 @@
       </label>
     </div>
 
+    <AudioRecorder
+      v-if="note"
+      ref="audioRecorder"
+      :note="note"
+      :transcription-url="options.urlTranscriptionService"
+      @update:note="onNoteUpdate"
+    />
+
     <div class="container-notes w3-row" style="margin: 24px; margin-bottom: 0">
       <div v-for="(val, i) in notes" :key="i" class="w3-col m12" :style="{fontSize: options.fontSize + 'px'}">
         <div class="val-content w3-col s12" @click="edit(i)">
@@ -78,9 +86,10 @@ import {store} from '@/stores/default.js';
 import {getNoteById, getOptions, upsertNote} from '@/lib/storage.js';
 import CompHeader from '@/components/CompHeader.vue';
 import NoteTextarea from '@/components/NoteTextarea.vue';
+import AudioRecorder from '@/components/AudioRecorder.vue';
 
 export default {
-  components: {CompHeader, NoteTextarea},
+  components: {CompHeader, NoteTextarea, AudioRecorder},
   setup() {
     const textarea = useTemplateRef('textarea');
     function focusTextarea() {
@@ -103,6 +112,7 @@ export default {
       options: {
         fontSize: 12,
         urlBibleReferenceDownload: '',
+        urlTranscriptionService: '',
       },
       textareaHeight: 32,
       defaultTextareaHeight: 32,
@@ -188,12 +198,25 @@ export default {
     },
     async persistNote() {
       if (!this.note) return;
+
+      const audioRecorder = this.$refs.audioRecorder;
+      if (audioRecorder) {
+        const progress = await audioRecorder.syncProgress();
+        if (progress) {
+          this.note.lastProcessedSecond = progress.lastProcessedSecond;
+          this.note.audioDuration = progress.audioDuration;
+        }
+      }
+
       this.note = await upsertNote({
         ...this.note,
         title: this.note.title,
         date: this.note.date,
         notes: this.note.notes,
       });
+    },
+    onNoteUpdate(updatedNote) {
+      this.note = updatedNote;
     },
     async loadFontSize() {
       const options = await getOptions();
@@ -203,6 +226,9 @@ export default {
       }
       if (options.urlBibleReferenceDownload !== undefined) {
         this.options.urlBibleReferenceDownload = options.urlBibleReferenceDownload;
+      }
+      if (options.urlTranscriptionService !== undefined) {
+        this.options.urlTranscriptionService = options.urlTranscriptionService;
       }
     },
     getDate(type, d = new Date()) {

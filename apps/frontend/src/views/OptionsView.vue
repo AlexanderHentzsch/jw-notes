@@ -36,6 +36,16 @@
       </div>
 
       <div>
+        <p>URL für den Transkriptions-Dienst</p>
+        <input
+          v-model="urlTranscriptionService" @change="saveOptions()"
+          class="options-input"
+          placeholder="https://..."
+        >
+        <p class="options-hint">Audioaufnahmen werden separat in IndexedDB gespeichert und sind nicht im JSON-Export enthalten.</p>
+      </div>
+
+      <div>
         <h2>Download</h2>
         <a class="w3-button w3-teal" :href="downloadJson" :download="fileNameDownload">Download JSON</a>
         <h3 style="margin-top: 32px">Inhalt</h3>
@@ -84,6 +94,7 @@ export default {
       json: '',
       theme: DEFAULT_THEME,
       urlBibleReferenceDownload: '',
+      urlTranscriptionService: '',
     };
   },
   computed: {
@@ -122,6 +133,7 @@ export default {
       await saveOptionsToStorage({
         fontSize: this.selectedFontSize,
         urlBibleReferenceDownload: this.urlBibleReferenceDownload,
+        urlTranscriptionService: this.urlTranscriptionService,
         theme: this.theme,
       });
     },
@@ -137,6 +149,9 @@ export default {
       }
       if (storage.urlBibleReferenceDownload !== undefined) {
         this.urlBibleReferenceDownload = storage.urlBibleReferenceDownload;
+      }
+      if (storage.urlTranscriptionService !== undefined) {
+        this.urlTranscriptionService = storage.urlTranscriptionService;
       }
       if (storage.theme !== undefined) {
         this.theme = storage.theme;
@@ -169,6 +184,12 @@ h1 {
   display: inline-block;
   margin-right: 16px;
   cursor: pointer;
+}
+
+.options-hint {
+  font-size: 0.85em;
+  opacity: 0.8;
+  margin-top: 8px;
 }
 
 .slider {

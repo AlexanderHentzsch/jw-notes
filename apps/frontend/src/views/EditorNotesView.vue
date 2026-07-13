@@ -48,10 +48,10 @@
           <button @click="addEmoji('video')" class="w3-btn w3-hover-none editor-btn">🎥</button>
         </div>
         <div class="w3-col w3-right" :style="{width: widthContainerStandardBtn + 'px'}">
-          <button v-if="routerHasIndex" @click="deleteIndex()" class="w3-btn w3-hover-none editor-btn">
+          <button v-if="isEditingLine" @click="deleteIndex()" class="w3-btn w3-hover-none editor-btn">
             <i class="far fa-trash-alt"></i>
           </button>
-          <button v-if="routerHasIndex" @click="abortEdit()" class="w3-btn w3-hover-none editor-btn">
+          <button v-if="isEditingLine" @click="abortEdit()" class="w3-btn w3-hover-none editor-btn">
             <i class="far fa-times-circle"></i>
           </button>
           <button @click="textareaToNotes()" class="w3-btn w3-hover-none editor-btn">
@@ -75,6 +75,7 @@
 <script>
 import {useTemplateRef} from 'vue';
 import {store} from '@/stores/default.js';
+import {getNoteById, getOptions, upsertNote} from '@/lib/storage.js';
 import CompHeader from '@/components/CompHeader.vue';
 import NoteTextarea from '@/components/NoteTextarea.vue';
 
@@ -90,6 +91,7 @@ export default {
   name: 'EditorNotes',
   data() {
     return {
+      note: null,
       title: '',
       date: '',
       notes: [],
@@ -104,8 +106,8 @@ export default {
       },
       textareaHeight: 32,
       defaultTextareaHeight: 32,
-      jsonDB: [],
       isLoading: false,
+      isReady: false,
     };
   },
   computed: {
@@ -113,73 +115,95 @@ export default {
       const h = window.innerHeight;
       return {height: ((h < 300) ? 300 : h - 200) + 'px'};
     },
-    currentId() {
-      const id = this.$route.params.idNotes;
-      return (id === 'new') ? 'new' : (parseInt(id) - 1);
+    noteId() {
+      return this.$route.params.id;
     },
-    routerHasIndex() {
-      return !(this.$route.query.index === undefined);
+    isEditingLine() {
+      return store.editingLineIndex !== null;
+    },
+    editingLineIndex() {
+      return store.editingLineIndex;
     },
     documentWidth() {
       return document.getElementsByTagName('html')[0].clientWidth - (8 * 2);
     },
     widthContainerSpecialBtn() {
-      let cBtn = (this.routerHasIndex) ? 3 : 1;
+      let cBtn = (this.isEditingLine) ? 3 : 1;
       let deductWidth = 50 * cBtn;
       return this.documentWidth - deductWidth;
     },
     widthContainerStandardBtn() {
-      let cBtn = (this.routerHasIndex) ? 3 : 1;
+      let cBtn = (this.isEditingLine) ? 3 : 1;
       return 50 * cBtn;
     },
   },
-  mounted() {
-    const saveData = localStorage.getItem('DB');
-    if (saveData)
-      this.jsonDB = JSON.parse(saveData);
-
-    let id = this.currentId;
-
-    if (id === 'new') {
-      this.createNewNotesArray();
-      this.$refs.title.focus();
-    } else if (this.jsonDB[id] === undefined) {
+  async mounted() {
+    await this.loadNote();
+    if (!this.note) {
       return this.$router.push('/overview/notes');
-    } else {
-      this.focusTextarea();
     }
 
     this.setDefaults();
-    this.loadFontSize();
+    await this.loadFontSize();
+    this.isReady = true;
+    this.focusTextarea();
   },
   watch: {
-    '$route.query.index'() {
+    editingLineIndex() {
       this.changeTextareaContent();
     },
-    'title'() {
-      this.jsonDB[this.currentId].title = (this.title === '') ? this.getDate('day') : this.title;
-      this.saveInLocalStorage();
+    async title() {
+      if (!this.isReady || !this.note) return;
+      this.note.title = (this.title === '') ? this.getDate('day') : this.title;
+      await this.persistNote();
     },
-    'notes'() {
-      this.jsonDB[this.currentId].notes = this.notes;
+    async notes() {
+      if (!this.isReady || !this.note) return;
+      this.note.notes = this.notes;
+      await this.persistNote();
     },
-    'date'() {
-      this.jsonDB[this.currentId].date = this.date;
-      this.saveInLocalStorage();
+    async date() {
+      if (!this.isReady || !this.note) return;
+      this.note.date = this.date;
+      await this.persistNote();
+    },
+    async '$route.params.id'() {
+      this.isReady = false;
+      store.editingLineIndex = null;
+      await this.loadNote();
+      if (!this.note) {
+        return this.$router.push('/overview/notes');
+      }
+      this.setDefaults();
+      this.isReady = true;
+      this.focusTextarea();
     },
   },
+  beforeUnmount() {
+    store.editingLineIndex = null;
+  },
   methods: {
-    loadFontSize() {
-      let options = localStorage.getItem('options');
+    async loadNote() {
+      this.note = await getNoteById(this.noteId);
+    },
+    async persistNote() {
+      if (!this.note) return;
+      this.note = await upsertNote({
+        ...this.note,
+        title: this.note.title,
+        date: this.note.date,
+        notes: this.note.notes,
+      });
+    },
+    async loadFontSize() {
+      const options = await getOptions();
 
-      if (options === undefined || options === null)
-        return;
-
-      options = JSON.parse(options);
-      if (options.hasOwnProperty('fontSize')) {
+      if (options.fontSize !== undefined) {
         this.options.fontSize = options.fontSize;
       }
-      this.options.urlBibleReferenceDownload = options.urlBibleReferenceDownload;
+      if (options.urlBibleReferenceDownload !== undefined) {
+        this.options.urlBibleReferenceDownload = options.urlBibleReferenceDownload;
+      }
     },
     getDate(type, d = new Date()) {
       const padZero = (num) => {
@@ -209,34 +233,14 @@ export default {
       }
     },
     setDefaults() {
-      const cJSON = this.jsonDB[this.currentId];
-      if (cJSON === undefined) {
-        this.title = this.getDate('day');
-        this.date = this.getDate('unix');
-        this.notes = [];
-      } else {
-        this.title = cJSON.title;
-        this.date = cJSON.date;
-        this.notes = cJSON.notes;
-      }
-    },
-    createNewNotesArray() {
-      const title = this.getDate('day');
-      const date = this.getDate('unix');
-      const notes = [];
-      this.jsonDB.push({title, date, notes});
-      this.saveInLocalStorage();
-      this.$router.push(`/editor/notes/${this.jsonDB.length}`);
-    },
-    saveInLocalStorage() {
-      localStorage.setItem('DB', JSON.stringify(this.jsonDB));
+      if (!this.note) return;
+      this.title = this.note.title;
+      this.date = this.note.date;
+      this.notes = this.note.notes;
     },
     changeTextareaContent() {
-      let index = this.$route.query.index;
-      if (index === undefined)
-        return;
-
-      index = parseInt(index);
+      const index = store.editingLineIndex;
+      if (index === null) return;
 
       const note = this.notes[index];
       store.currentNode = (typeof note === 'object') ? '@' + note.val : note;
@@ -261,13 +265,12 @@ export default {
       store.currentNode = emoji + ' ' + store.currentNode;
       this.focusTextarea();
     },
-    textareaToNotes() {
+    async textareaToNotes() {
       this.date = this.getDate('unix');
 
       let val = store.currentNode.trim();
-      let id = this.$route.params.idNotes;
-      let index = this.$route.query.index;
-      const note = this.notes[index];
+      const index = store.editingLineIndex;
+      const note = index !== null ? this.notes[index] : undefined;
 
       if (typeof note !== 'object' || '@' + note?.val !== val) {
         let regex = /[0-9]:[0-9]/;
@@ -279,49 +282,45 @@ export default {
         }
 
         if (val !== '') {
-          if (index !== undefined) {
-            index = parseInt(index);
+          if (index !== null) {
             this.notes[index] = val;
           } else {
             this.notes.push(val);
           }
-        } else if (!!index) {
+        } else if (index !== null) {
           this.deleteIndex();
+          return;
         }
       }
 
       store.currentNode = '';
-      this.saveInLocalStorage();
+      store.editingLineIndex = null;
+      await this.persistNote();
       this.focusTextarea();
-      this.$router.push(`/editor/notes/${id}`);
       this.$nextTick(() => {
         window.scrollTo(0, document.body.scrollHeight);
       });
     },
     edit(index) {
-      if (index < 0 || index >= this.notes.length || index === parseInt(this.$route.query.index))
+      if (index < 0 || index >= this.notes.length || index === store.editingLineIndex)
         return;
 
-      let id = this.$route.params.idNotes;
-      this.$router.push(`/editor/notes/${id}?index=${index}`);
-
+      store.editingLineIndex = index;
       this.focusTextarea();
       this.textareaHeight = parseInt(this.defaultTextareaHeight);
     },
     abortEdit() {
-      let id = this.$route.params.idNotes;
-      let index = this.$route.query.index;
-
       store.currentNode = '';
+      store.editingLineIndex = null;
       this.textareaHeight = parseInt(this.defaultTextareaHeight);
-      if (index !== undefined)
-        this.$router.push(`/editor/notes/${id}`);
       this.focusTextarea();
     },
-    deleteIndex() {
-      let index = parseInt(this.$route.query.index);
+    async deleteIndex() {
+      const index = store.editingLineIndex;
+      if (index === null) return;
       this.notes.splice(index, 1);
       this.abortEdit();
+      await this.persistNote();
     },
     getValue(val) {
       let first = val[0];
@@ -347,7 +346,7 @@ export default {
         json.comment = '';
         json.content = await response.json();
         this.notes[index] = json;
-        this.saveInLocalStorage();
+        await this.persistNote();
       } catch (e) {
         alert('Beim Laden trat ein Fehler aus.');
       } finally {

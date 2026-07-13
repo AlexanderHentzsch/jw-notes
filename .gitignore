@@ -12,6 +12,7 @@ node_modules
 # Logs
 logs
 *.log
+build-log.txt
 
 # Misc
 .DS_Store

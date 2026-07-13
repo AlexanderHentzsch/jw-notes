@@ -5,7 +5,7 @@ export default createRouter({
   routes: [
     {path: '/', name: 'Main', component: () => import('../views/IndexView.vue')},
     {path: '/overview/notes', name: 'OverviewNotes', component: () => import('../views/OverviewNotesView.vue')},
-    {path: '/editor/notes/:idNotes', name: 'EditorNotes', component: () => import('../views/EditorNotesView.vue')},
+    {path: '/editor/notes/:id', name: 'EditorNotes', component: () => import('../views/EditorNotesView.vue')},
     {path: '/options', name: 'Options', component: () => import('../views/OptionsView.vue')},
   ],
 });

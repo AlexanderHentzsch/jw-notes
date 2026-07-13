@@ -8,9 +8,4 @@ declare module '*.vue' {
 
 interface Window {
   isMobile: () => boolean;
-  jsonDB: Array<{
-    title: string;
-    date: string | number;
-    notes: unknown[];
-  }>;
 }

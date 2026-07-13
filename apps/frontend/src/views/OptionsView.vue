@@ -56,6 +56,7 @@
 <script>
 import CompHeader from '@/components/CompHeader.vue';
 import packageJson from '../../package.json';
+import {clearNotes, getNotes, getOptions, importNotes, saveOptions as saveOptionsToStorage} from '@/lib/storage.js';
 
 export default {
   setup() {
@@ -66,7 +67,6 @@ export default {
   data() {
     return {
       fontSize: 6,
-      localStorageKey: 'options',
       hrefGitHub: 'https://github.com/AlexanderHentzsch/jw-notes',
       json: '',
       urlBibleReferenceDownload: '',
@@ -95,40 +95,43 @@ export default {
       return 'jw-notes-' + date + '.json';
     },
     downloadJson() {
-      let db = localStorage.getItem('DB');
-      return 'data:text/json;charset=utf-8,' + encodeURIComponent(db);
+      return 'data:text/json;charset=utf-8,' + encodeURIComponent(this.json);
     },
   },
-  mounted() {
-    this.loadOptions();
-    this.json = localStorage.getItem('DB');
+  async mounted() {
+    await this.loadOptions();
+    const notes = await getNotes();
+    this.json = JSON.stringify(notes, null, 2);
   },
   methods: {
-    saveOptions() {
-      let options = {
+    async saveOptions() {
+      await saveOptionsToStorage({
         fontSize: this.selectedFontSize,
         urlBibleReferenceDownload: this.urlBibleReferenceDownload,
-      };
-      let key = this.localStorageKey;
-      localStorage.setItem(key, JSON.stringify(options));
+      });
     },
-    loadOptions() {
-      let storage = localStorage.getItem(this.localStorageKey);
+    async loadOptions() {
+      const storage = await getOptions();
 
-      if (storage === undefined || storage === null)
-        return;
-
-      storage = JSON.parse(storage);
-      this.fontSize = this.possibleTextHeight.indexOf(storage.fontSize);
-      this.urlBibleReferenceDownload = storage.urlBibleReferenceDownload;
+      if (storage.fontSize !== undefined) {
+        this.fontSize = this.possibleTextHeight.indexOf(storage.fontSize);
+      }
+      if (storage.urlBibleReferenceDownload !== undefined) {
+        this.urlBibleReferenceDownload = storage.urlBibleReferenceDownload;
+      }
     },
-    saveContent() {
-      localStorage.setItem('DB', this.json);
+    async saveContent() {
+      try {
+        const notes = await importNotes(this.json);
+        this.json = JSON.stringify(notes, null, 2);
+      } catch (e) {
+        alert('Ungültiges JSON: ' + e.message);
+      }
     },
-    deleteContent() {
+    async deleteContent() {
       if (confirm('Willst du wirklich alles löschen?')) {
-        localStorage.removeItem('DB');
-        this.json = '';
+        await clearNotes();
+        this.json = '[]';
       }
     },
   },
@@ -140,28 +143,37 @@ h1 {
   font-size: 26px;
 }
 
-#fontSizeRange {
+.slider {
+  -webkit-appearance: none;
   width: 100%;
+  height: 15px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
 }
 
-#container-github {
-  position: fixed;
-  bottom: 0px;
-  padding: 16px;
-  text-align: center;
-  width: 100%;
+.slider:hover {
+  opacity: 1;
 }
 
-#a-github {
-  text-decoration: none;
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
 }
 
-#span-github {
-  background-color: #fff;
-  color: #000;
-  border-radius: 60px;
-  display: inline-block;
-  padding: 0 8px;
-  margin-left: 2px;
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
 }
 </style>

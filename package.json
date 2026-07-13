@@ -1,23 +1,13 @@
 {
-  "name": "nuxt-app",
+  "name": "jw-notes",
   "private": true,
-  "type": "module",
-  "version": "2025-02-15-01",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
-  },
-  "dependencies": {
-    "@mdi/font": "^7.4.47",
-    "nuxt": "^3.15.3",
-    "vue": "latest",
-    "vue-router": "latest"
-  },
-  "devDependencies": {
-    "vite-plugin-vuetify": "^2.1.0",
-    "vuetify": "^3.7.12"
+    "dev": "npm run dev --workspace=@jw-notes/frontend",
+    "build": "npm run build --workspace=@jw-notes/frontend",
+    "generate": "npm run generate --workspace=@jw-notes/frontend",
+    "preview": "npm run preview --workspace=@jw-notes/frontend"
   }
 }
